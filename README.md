@@ -6,11 +6,8 @@
 """
 
 ### Integrantes del equipo:
-"""
-_- Huaccho Mancilla Steven José_
-"""
-_- Lazo Maravi Nilton Joel_
-"""
-_-Ramirez Bashualdo Lenin Sebasthian_
-_-Rojas Mellado Andrea Mirella_
-"""
+
+- _Huaccho Mancilla Steven José_
+- _Lazo Maravi Nilton Joel_
+- _Ramirez Bashualdo Lenin Sebasthian_
+- _Rojas Mellado Andrea Mirella
