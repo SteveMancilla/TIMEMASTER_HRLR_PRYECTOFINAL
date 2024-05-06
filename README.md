@@ -1,6 +1,6 @@
 # Gestor de Tiempo Multipropósito "TIMEMASTER"
 
-__## Objetivos del Proyecto__
+## Objetivos del Proyecto
 """
 > 1. Desarrollar una aplicación de gestión de tiempo multipropósito que satisfaga las necesidades de los usuarios, proporcionando funcionalidades como temporizador estándar, alarma y temporizador Pomodoro.
 """
