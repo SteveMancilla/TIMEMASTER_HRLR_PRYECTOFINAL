@@ -6,7 +6,9 @@ __##Objetivos del Proyecto__
 """
 
 ___###Integrantes del equipo:___
+'''
 _- Huaccho Mancilla Steven José_
 _- Lazo Maravi Nilton Joel_
 _-Ramirez Bashualdo Lenin Sebasthian_
 _-Rojas Mellado Andrea Mirella_
+'''
