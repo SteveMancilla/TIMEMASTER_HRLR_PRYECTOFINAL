@@ -1,5 +1,8 @@
 import tkinter as tk
 import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 '''sys.path.insert(0, 'src')
 sys.path.insert(0, 'D:\A_ProyectoConstruccionSoftware\TIMEMASTER_HRLR_PRYECTOFINAL\src\modelo\db.py')'''
 

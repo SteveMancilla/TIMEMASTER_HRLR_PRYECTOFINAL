@@ -1,4 +1,4 @@
-from db import DB
+from src.modelo.db import DB
 
 class Timer:
     def __init__(self, name, duration):
