@@ -1,26 +1,64 @@
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
+import datetime
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+Base = declarative_base()
+
+class AuditoriaModel(Base):
+    __tablename__ = 'tblAuditoria'
+    Auditoria_ID = Column(Integer, primary_key=True, autoincrement=True)
+    Usuario_ID = Column(Integer, ForeignKey('tblUsuario.Usuario_ID'))
+    accion = Column(String, nullable=True)
+    fecha_hora = Column(DateTime, default=datetime.datetime.now)
+
+class UsuarioModel(Base):
+    __tablename__ = 'tblUsuario'
+    Usuario_ID = Column(Integer, primary_key=True, autoincrement=True)
+    Usuario_Nombre = Column(String, nullable=False)
+    Usuario_Apellido_Paterno = Column(String, nullable=False)
+    Usuario_Celular = Column(String, nullable=False)
+    Usuario_Email = Column(String, nullable=False)
+    auditorias = relationship("AuditoriaModel")
+
+class TimerModel(Base):
+    __tablename__ = 'tblTemporizador'
+    temporizador_ID = Column(Integer, primary_key=True, autoincrement=True)
+    temporizador_Tiempo = Column(Float, nullable=False)
+    temporizador_estado = Column(String, nullable=False)
+    Usuario_ID = Column(Integer, ForeignKey('tblUsuario.Usuario_ID'))
+    Auditoria_ID = Column(Integer, ForeignKey('tblAuditoria.Auditoria_ID'))
+
+class AlarmModel(Base):
+    __tablename__ = 'tblAlarma'
+    Alarma_ID = Column(Integer, primary_key=True, autoincrement=True)
+    Alarma_Hora_Programada = Column(DateTime, nullable=False)
+    Alarma_Estado = Column(String, nullable=False)
+    Usuario_ID = Column(Integer, ForeignKey('tblUsuario.Usuario_ID'))
+    Auditoria_ID = Column(Integer, ForeignKey('tblAuditoria.Auditoria_ID'))
+
+class PomodoroModel(Base):
+    __tablename__ = 'tblTemporizadorPomodoro'
+    TemPom_ID = Column(Integer, primary_key=True, autoincrement=True)
+    temPom_Duracion_trabajo = Column(Float, nullable=False)
+    temPom_Duracion_descanso = Column(Float, nullable=False)
+    Usuario_ID = Column(Integer, ForeignKey('tblUsuario.Usuario_ID'))
+    Auditoria_ID = Column(Integer, ForeignKey('tblAuditoria.Auditoria_ID'))
 
 class DB:
-    def __init__(self, db_name):
-        self.engine = create_engine("sqlite:///{db_name}")
+    def __init__(self, db_name="timemaster.db"):
+        self.engine = create_engine(f"sqlite:///{db_name}")
+        Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
     
-    def create_table(self, table_name, columns):
-        self.engine.execute("CREAR LA TANBLA SI NO EXISTE {table_name} ({columns})")
+    def get_session(self):
+        return self.Session()
     
-    def insert(self, table_name, values):
-        session = self.Session()
-        session.add_all(values)
-        session.commit()
-        session.close()
-
-    def select(self, table_name, columns):
-        session = self.Session()
-        result = session.query(table_name).all()
-        session.close()
-        return result
-
     def close(self):
         self.engine.dispose()
+    
+    def register_audit(self, session, usuario_id, accion):
+        audit = AuditoriaModel(Usuario_ID=usuario_id, accion=accion)
+        session.add(audit)
+        session.commit()
+        return audit

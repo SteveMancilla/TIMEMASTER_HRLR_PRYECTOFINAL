@@ -1,147 +1,193 @@
+from datetime import datetime
 import tkinter as tk
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-'''sys.path.insert(0, 'src')
-sys.path.insert(0, 'D:\A_ProyectoConstruccionSoftware\TIMEMASTER_HRLR_PRYECTOFINAL\src\modelo\db.py')'''
-
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
+from tkinter import ttk
 from src.modelo.timer import Timer
 from src.modelo.alarm import Alarm
 from src.modelo.pomodoro import Pomodoro
+from src.modelo.db import DB, TimerModel, AlarmModel, PomodoroModel, UsuarioModel
+from playsound import playsound
+from threading import Thread
 
 class MainView:
-    def __init__(self):
+    def __init__(self, user_data):
         self.root = tk.Tk()
         self.root.title("Timemaster")
+        
+        # Crear la base de datos
+        self.db = DB()
+        self.session = self.db.get_session()
 
-        self.timer_frame = tk.Frame(self.root)
-        self.timer_frame.pack()
+        # Datos del usuario
+        self.user_id = self.get_user_data(user_data)
 
-        self.alarm_frame = tk.Frame(self.root)
-        self.alarm_frame.pack()
+        self.create_widgets()
+        self.create_clock()
 
-        self.pomodoro_frame = tk.Frame(self.root)
-        self.pomodoro_frame.pack()
+    def get_user_data(self, user_data):
+        usuario = UsuarioModel(
+            Usuario_Nombre=user_data["nombre"],
+            Usuario_Apellido_Paterno=user_data["apellido"],
+            Usuario_Celular=user_data["celular"],
+            Usuario_Email=user_data["email"]
+        )
+        self.session.add(usuario)
+        self.session.commit()
 
-        self.timer_label = tk.Label(self.timer_frame, text="Temporizador")
-        self.timer_label.pack()
+        return usuario.Usuario_ID
+
+    def create_widgets(self):
+        self.timer_frame = tk.Frame(self.root, bg='lightblue')
+        self.timer_frame.pack(pady=10)
+
+        self.alarm_frame = tk.Frame(self.root, bg='lightgreen')
+        self.alarm_frame.pack(pady=10)
+
+        self.pomodoro_frame = tk.Frame(self.root, bg='lightcoral')
+        self.pomodoro_frame.pack(pady=10)
+
+        self.create_timer_widgets()
+        self.create_alarm_widgets()
+        self.create_pomodoro_widgets()
+
+    def create_clock(self):
+        self.clock_label = tk.Label(self.root, font=('Helvetica', 14))
+        self.clock_label.pack(side=tk.TOP)
+        self.update_clock()
+
+    def update_clock(self):
+        now = datetime.now().strftime('%H:%M:%S')
+        self.clock_label.config(text=now)
+        self.root.after(1000, self.update_clock)
+
+    def create_timer_widgets(self):
+        tk.Label(self.timer_frame, text="Temporizador", bg='lightblue').pack()
 
         self.timer_entry = tk.Entry(self.timer_frame)
         self.timer_entry.pack()
 
-        self.timer_start_button = tk.Button(self.timer_frame, text="Iniciar", command=self.start_timer)
-        self.timer_start_button.pack()
+        self.timer_label = tk.Label(self.timer_frame, text="Tiempo restante: ", bg='lightblue')
+        self.timer_label.pack()
 
-        self.timer_pause_button = tk.Button(self.timer_frame, text="Pausar", command=self.pause_timer)
-        self.timer_pause_button.pack()
+        tk.Button(self.timer_frame, text="Iniciar", command=self.start_timer).pack()
+        tk.Button(self.timer_frame, text="Pausar", command=self.pause_timer).pack()
+        tk.Button(self.timer_frame, text="Reiniciar", command=self.reset_timer).pack()
 
-        self.timer_reset_button = tk.Button(self.timer_frame, text="Reiniciar", command=self.reset_timer)
-        self.timer_reset_button.pack()
-
-        self.timer_stop_button = tk.Button(self.timer_frame, text="Detener", command=self.stop_timer)
-        self.timer_stop_button.pack()
-
-        self.alarm_label = tk.Label(self.alarm_frame, text="Alarma")
-        self.alarm_label.pack()
+    def create_alarm_widgets(self):
+        tk.Label(self.alarm_frame, text="Alarma", bg='lightgreen').pack()
 
         self.alarm_time_entry = tk.Entry(self.alarm_frame)
         self.alarm_time_entry.pack()
 
-        self.alarm_set_button = tk.Button(self.alarm_frame, text="Configurar", command=self.set_alarm)
-        self.alarm_set_button.pack()
+        self.alarm_label = tk.Label(self.alarm_frame, text="Alarma configurada: ", bg='lightgreen')
+        self.alarm_label.pack()
 
-        self.alarm_check_button = tk.Button(self.alarm_frame, text="Verificar", command=self.check_alarm)
-        self.alarm_check_button.pack()
+        tk.Button(self.alarm_frame, text="Configurar", command=self.set_alarm).pack()
 
-        self.pomodoro_label = tk.Label(self.pomodoro_frame, text="Temporizador Pomodoro")
+    def create_pomodoro_widgets(self):
+        tk.Label(self.pomodoro_frame, text="Pomodoro", bg='lightcoral').pack()
+
+        tk.Label(self.pomodoro_frame, text="Duración de trabajo (min)", bg='lightcoral').pack()
+        self.work_time_entry = tk.Entry(self.pomodoro_frame)
+        self.work_time_entry.pack()
+
+        tk.Label(self.pomodoro_frame, text="Duración de descanso (min)", bg='lightcoral').pack()
+        self.break_time_entry = tk.Entry(self.pomodoro_frame)
+        self.break_time_entry.pack()
+
+        self.pomodoro_label = tk.Label(self.pomodoro_frame, text="Estado: ", bg='lightcoral')
         self.pomodoro_label.pack()
 
-        self.pomodoro_work_entry = tk.Entry(self.pomodoro_frame)
-        self.pomodoro_work_entry.pack()
-
-        self.pomodoro_break_entry = tk.Entry(self.pomodoro_frame)
-        self.pomodoro_break_entry.pack()
-
-        self.pomodoro_start_button = tk.Button(self.pomodoro_frame, text="Iniciar", command=self.start_pomodoro)
-        self.pomodoro_start_button.pack()
-
-        self.pomodoro_pause_button = tk.Button(self.pomodoro_frame, text="Pausar", command=self.pause_pomodoro)
-        self.pomodoro_pause_button.pack()
-
-        self.pomodoro_reset_button = tk.Button(self.pomodoro_frame, text="Reiniciar", command=self.reset_pomodoro)
-        self.pomodoro_reset_button.pack()
-
-        self.pomodoro_stop_button = tk.Button(self.pomodoro_frame, text="Detener", command=self.stop_pomodoro)
-        self.pomodoro_stop_button.pack()
+        tk.Button(self.pomodoro_frame, text="Iniciar", command=self.start_pomodoro).pack()
+        tk.Button(self.pomodoro_frame, text="Pausar", command=self.pause_pomodoro).pack()
+        tk.Button(self.pomodoro_frame, text="Reiniciar", command=self.reset_pomodoro).pack()
 
     def start_timer(self):
         duration = float(self.timer_entry.get())
         self.timer = Timer(duration)
         self.timer.start()
+        self.db.register_audit(self.session, self.user_id, "Temporizador Iniciado")
         self.update_timer()
 
     def pause_timer(self):
-        self.timer.stop()
+        if self.timer:
+            self.timer.stop()
+            self.db.register_audit(self.session, self.user_id, "Temporizador Pausado")
 
     def reset_timer(self):
-        self.timer.reset()
+        if self.timer:
+            self.timer.reset()
+            self.db.register_audit(self.session, self.user_id, "Temporizador Reiniciado")
+        self.update_timer()
 
-    def stop_timer(self):
-        self.timer.stop()
-        self.timer_label.config(text="Temporizador detenido")
+    def update_timer(self):
+        if self.timer:
+            remaining_time = self.timer.get_remaining_time()
+            self.timer_label.config(text=f"Tiempo restante: {remaining_time:.2f} segundos")
+            if self.timer.is_finished():
+                self.play_sound()
+                self.db.register_audit(self.session, self.user_id, "Temporizador Finalizado")
+                return
+            self.root.after(1000, self.update_timer)
 
     def set_alarm(self):
-        alarm_time = float(self.alarm_time_entry.get())
+        alarm_time = self.alarm_time_entry.get()
         self.alarm = Alarm(alarm_time)
         self.alarm.set()
-        self.alarm_label.config(text="Alarma configurada")
+        self.db.register_audit(self.session, self.user_id, "Alarma Configurada")
+        self.update_alarm()
 
-    def check_alarm(self):
-        if self.alarm.check():
-            messagebox.showinfo("Alarma", "¡La alarma ha sonado!")
-        else:
-            messagebox.showinfo("Alarma", "Aún no es hora de la alarma")
+    def update_alarm(self):
+        if self.alarm and self.alarm.check():
+            self.play_sound()
+            self.db.register_audit(self.session, self.user_id, "Alarma Sonando")
+            return
+        self.root.after(1000, self.update_alarm)
 
     def start_pomodoro(self):
-        work_time = float(self.pomodoro_work_entry.get())
-        break_time = float(self.pomodoro_break_entry.get())
+        work_time = float(self.work_time_entry.get())
+        break_time = float(self.break_time_entry.get())
         self.pomodoro = Pomodoro(work_time, break_time)
         self.pomodoro.start()
+        self.db.register_audit(self.session, self.user_id, "Pomodoro Iniciado")
         self.update_pomodoro()
 
     def pause_pomodoro(self):
-        self.pomodoro.stop()
+        if self.pomodoro:
+            self.pomodoro.stop()
+            self.db.register_audit(self.session, self.user_id, "Pomodoro Pausado")
 
     def reset_pomodoro(self):
-        self.pomodoro.reset()
-
-    def stop_pomodoro(self):
-        self.pomodoro.stop()
-        self.pomodoro_label.config(text="Pomodoro detenido")
-
-    def update_timer(self):
-        if self.timer.is_running:
-            remaining_time = self.timer.get_remaining_time()
-            self.timer_label.config(text=f"Tiempo restante: {remaining_time:.2f} segundos")
-            self.timer_label.after(100, self.update_timer)
-        else:
-            self.timer_label.config(text="Temporizador detenido")
-            messagebox.showinfo("Temporizador", "¡El temporizador ha finalizado!")
+        if self.pomodoro:
+            self.pomodoro.reset()
+            self.db.register_audit(self.session, self.user_id, "Pomodoro Reiniciado")
+        self.update_pomodoro()
 
     def update_pomodoro(self):
-        if self.pomodoro.is_running:
+        if self.pomodoro:
             remaining_time = self.pomodoro.get_remaining_time()
-            if remaining_time < self.pomodoro.work_time:
-                self.pomodoro_label.config(text=f"Tiempo de trabajo restante: {remaining_time:.2f} segundos")
-            else:
-                self.pomodoro_label.config(text=f"Tiempo de descanso restante: {remaining_time:.2f} segundos")
-            self.pomodoro_label.after(100, self.update_pomodoro)
-        else:
-            self.pomodoro_label.config(text="Pomodoro detenido")
-            messagebox.showinfo("Pomodoro", "¡El temporizador Pomodoro ha finalizado!")
+            estado = "Trabajo" if not self.pomodoro.is_break else "Descanso"
+            self.pomodoro_label.config(text=f"Estado: {estado}, Tiempo restante: {remaining_time:.2f} segundos")
+            if self.pomodoro.is_finished():
+                self.pomodoro.switch()
+                self.db.register_audit(self.session, self.user_id, f"Pomodoro {'Trabajo' if self.pomodoro.is_break else 'Descanso'} Finalizado")
+                self.play_sound()
+            self.root.after(1000, self.update_pomodoro)
 
-if __name__ == '__main__':
-    view = MainView()
-    view.root.mainloop()
+    def play_sound(self):
+        def play():
+            playsound("sound.mp3")
+        Thread(target=play).start()
+
+    def run(self):
+        self.root.mainloop()
+
+if __name__ == "__main__":
+    user_data = {
+        "nombre": simpledialog.askstring("Nombre", "Ingrese su nombre"),
+        "apellido": simpledialog.askstring("Apellido", "Ingrese su apellido paterno"),
+        "celular": simpledialog.askstring("Celular", "Ingrese su celular"),
+        "email": simpledialog.askstring("Email", "Ingrese su email")
+    }
+    main_view = MainView(user_data)
+    main_view.run()
