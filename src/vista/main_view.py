@@ -1,13 +1,13 @@
-from datetime import datetime
+import threading
+from datetime import datetime, time
 import tkinter as tk
-from tkinter import messagebox, simpledialog
-from tkinter import ttk
+from tkinter import messagebox, ttk
 from src.modelo.timer import Timer
 from src.modelo.alarm import Alarm
 from src.modelo.pomodoro import Pomodoro
 from src.modelo.db import DB, TimerModel, AlarmModel, PomodoroModel, UsuarioModel
 from playsound import playsound
-from threading import Thread
+from pygame import mixer
 
 class MainView:
     def __init__(self, user_data):
@@ -18,13 +18,16 @@ class MainView:
         self.db = DB()
         self.session = self.db.get_session()
 
-        # Datos del usuario
-        self.user_id = self.get_user_data(user_data)
+        # Solicitar datos del usuario
+        self.user_id = self.register_user(user_data)
 
         self.create_widgets()
         self.create_clock()
+        self.sound_thread = None
 
-    def get_user_data(self, user_data):
+        mixer.init()
+
+    def register_user(self, user_data):
         usuario = UsuarioModel(
             Usuario_Nombre=user_data["nombre"],
             Usuario_Apellido_Paterno=user_data["apellido"],
@@ -76,8 +79,20 @@ class MainView:
     def create_alarm_widgets(self):
         tk.Label(self.alarm_frame, text="Alarma", bg='lightgreen').pack()
 
-        self.alarm_time_entry = tk.Entry(self.alarm_frame)
-        self.alarm_time_entry.pack()
+        self.alarm_time_frame = tk.Frame(self.alarm_frame, bg='lightgreen')
+        self.alarm_time_frame.pack(pady=5)
+
+        self.alarm_hour = ttk.Combobox(self.alarm_time_frame, values=list(range(24)), width=5, justify='center')
+        self.alarm_hour.pack(side=tk.LEFT, padx=5)
+        self.alarm_hour.current(0)
+
+        self.alarm_minute = ttk.Combobox(self.alarm_time_frame, values=list(range(60)), width=5, justify='center')
+        self.alarm_minute.pack(side=tk.LEFT, padx=5)
+        self.alarm_minute.current(0)
+
+        self.alarm_second = ttk.Combobox(self.alarm_time_frame, values=list(range(60)), width=5, justify='center')
+        self.alarm_second.pack(side=tk.LEFT, padx=5)
+        self.alarm_second.current(0)
 
         self.alarm_label = tk.Label(self.alarm_frame, text="Alarma configurada: ", bg='lightgreen')
         self.alarm_label.pack()
@@ -87,15 +102,13 @@ class MainView:
     def create_pomodoro_widgets(self):
         tk.Label(self.pomodoro_frame, text="Pomodoro", bg='lightcoral').pack()
 
-        tk.Label(self.pomodoro_frame, text="Duración de trabajo (min)", bg='lightcoral').pack()
-        self.work_time_entry = tk.Entry(self.pomodoro_frame)
-        self.work_time_entry.pack()
+        self.pomodoro_work_entry = tk.Entry(self.pomodoro_frame)
+        self.pomodoro_work_entry.pack()
 
-        tk.Label(self.pomodoro_frame, text="Duración de descanso (min)", bg='lightcoral').pack()
-        self.break_time_entry = tk.Entry(self.pomodoro_frame)
-        self.break_time_entry.pack()
+        self.pomodoro_break_entry = tk.Entry(self.pomodoro_frame)
+        self.pomodoro_break_entry.pack()
 
-        self.pomodoro_label = tk.Label(self.pomodoro_frame, text="Estado: ", bg='lightcoral')
+        self.pomodoro_label = tk.Label(self.pomodoro_frame, text="Tiempo de trabajo restante: ", bg='lightcoral')
         self.pomodoro_label.pack()
 
         tk.Button(self.pomodoro_frame, text="Iniciar", command=self.start_pomodoro).pack()
@@ -103,91 +116,160 @@ class MainView:
         tk.Button(self.pomodoro_frame, text="Reiniciar", command=self.reset_pomodoro).pack()
 
     def start_timer(self):
-        duration = float(self.timer_entry.get())
-        self.timer = Timer(duration)
-        self.timer.start()
-        self.db.register_audit(self.session, self.user_id, "Temporizador Iniciado")
-        self.update_timer()
+        try:
+            duration = float(self.timer_entry.get())
+            self.timer = Timer(duration)
+            self.timer.start()
+            self.update_timer()
+
+            # Registrar auditoría y guardar temporizador en la base de datos
+            audit = self.db.register_audit(self.session, self.user_id, 'Iniciar temporizador')
+            timer_model = TimerModel(
+                temporizador_Tiempo=duration, 
+                temporizador_estado='Iniciado', 
+                Usuario_ID=self.user_id,
+                Auditoria_ID=audit.Auditoria_ID
+            )
+            self.session.add(timer_model)
+            self.session.commit()
+        except ValueError:
+            messagebox.showerror("Error", "Por favor, ingrese un valor numérico para la duración del temporizador.")
 
     def pause_timer(self):
-        if self.timer:
+        if self.timer.is_running:
             self.timer.stop()
-            self.db.register_audit(self.session, self.user_id, "Temporizador Pausado")
+        else:
+            self.timer.start()
+            self.update_timer()
 
     def reset_timer(self):
-        if self.timer:
-            self.timer.reset()
-            self.db.register_audit(self.session, self.user_id, "Temporizador Reiniciado")
+        self.timer.reset()
         self.update_timer()
 
-    def update_timer(self):
-        if self.timer:
-            remaining_time = self.timer.get_remaining_time()
-            self.timer_label.config(text=f"Tiempo restante: {remaining_time:.2f} segundos")
-            if self.timer.is_finished():
-                self.play_sound()
-                self.db.register_audit(self.session, self.user_id, "Temporizador Finalizado")
-                return
-            self.root.after(1000, self.update_timer)
-
     def set_alarm(self):
-        alarm_time = self.alarm_time_entry.get()
-        self.alarm = Alarm(alarm_time)
-        self.alarm.set()
-        self.db.register_audit(self.session, self.user_id, "Alarma Configurada")
-        self.update_alarm()
+        try:
+            alarm_hour = int(self.alarm_hour.get())
+            alarm_minute = int(self.alarm_minute.get())
+            alarm_second = int(self.alarm_second.get())
 
-    def update_alarm(self):
+            # Validar que los valores están en los rangos correctos
+            if not (0 <= alarm_hour < 24) or not (0 <= alarm_minute < 60) or not (0 <= alarm_second < 60):
+                raise ValueError
+
+            # Formatear la hora utilizando strftime
+            alarm_time = time(alarm_hour, alarm_minute, alarm_second).strftime('%H:%M:%S')
+            self.alarm = Alarm(alarm_time)
+            self.alarm.set()
+            self.alarm_label.config(text="Alarma configurada para las " + alarm_time)
+
+            # Registrar auditoría y guardar alarma en la base de datos
+            audit = self.db.register_audit(self.session, self.user_id, 'Configurar alarma')
+            alarm_model = AlarmModel(
+                Alarma_Hora_Programada=self.alarm.alarm_time, 
+                Alarma_Estado='Programada',
+                Usuario_ID=self.user_id,
+                Auditoria_ID=audit.Auditoria_ID
+            )
+            self.session.add(alarm_model)
+            self.session.commit()
+        except ValueError:
+            messagebox.showerror("Error", "Formato de tiempo inválido. Use HH:MM:SS.")
+
+    def check_alarm(self):
         if self.alarm and self.alarm.check():
-            self.play_sound()
-            self.db.register_audit(self.session, self.user_id, "Alarma Sonando")
-            return
-        self.root.after(1000, self.update_alarm)
+            messagebox.showinfo("Alarma", "¡La alarma ha sonado!")
+            self.start_sound()
+        else:
+            messagebox.showinfo("Alarma", "Aún no es hora de la alarma o no hay una alarma configurada.")
 
     def start_pomodoro(self):
-        work_time = float(self.work_time_entry.get())
-        break_time = float(self.break_time_entry.get())
-        self.pomodoro = Pomodoro(work_time, break_time)
-        self.pomodoro.start()
-        self.db.register_audit(self.session, self.user_id, "Pomodoro Iniciado")
-        self.update_pomodoro()
+        try:
+            work_time = float(self.pomodoro_work_entry.get())
+            break_time = float(self.pomodoro_break_entry.get())
+            self.pomodoro = Pomodoro(work_time, break_time)
+            self.pomodoro.start()
+            self.update_pomodoro()
+
+            # Registrar auditoría y guardar pomodoro en la base de datos
+            audit = self.db.register_audit(self.session, self.user_id, 'Iniciar pomodoro')
+            pomodoro_model = PomodoroModel(
+                temPom_Duracion_trabajo=work_time, 
+                temPom_Duracion_descanso=break_time, 
+                Usuario_ID=self.user_id,
+                Auditoria_ID=audit.Auditoria_ID
+            )
+            self.session.add(pomodoro_model)
+            self.session.commit()
+        except ValueError:
+            messagebox.showerror("Error", "Por favor, ingrese valores numéricos para los tiempos de trabajo y descanso.")
 
     def pause_pomodoro(self):
-        if self.pomodoro:
+        if self.pomodoro.is_running:
             self.pomodoro.stop()
-            self.db.register_audit(self.session, self.user_id, "Pomodoro Pausado")
+        else:
+            self.pomodoro.start()
+            self.update_pomodoro()
 
     def reset_pomodoro(self):
-        if self.pomodoro:
-            self.pomodoro.reset()
-            self.db.register_audit(self.session, self.user_id, "Pomodoro Reiniciado")
+        self.pomodoro.reset()
         self.update_pomodoro()
 
+    def update_timer(self):
+        if self.timer.is_running:
+            remaining_time = self.timer.get_remaining_time()
+            self.timer_label.config(text=f"Tiempo restante: {remaining_time:.2f} segundos")
+            self.root.after(100, self.update_timer)
+        else:
+            if self.timer.is_finished():
+                messagebox.showinfo("Temporizador", "¡El temporizador ha finalizado!")
+                self.start_sound()
+            self.timer_label.config(text="Temporizador detenido")
+
     def update_pomodoro(self):
-        if self.pomodoro:
+        if self.pomodoro.is_running:
             remaining_time = self.pomodoro.get_remaining_time()
-            estado = "Trabajo" if not self.pomodoro.is_break else "Descanso"
-            self.pomodoro_label.config(text=f"Estado: {estado}, Tiempo restante: {remaining_time:.2f} segundos")
+            self.pomodoro_label.config(text=f"Tiempo de descanso restante: {remaining_time:.2f} segundos")
+            self.root.after(100, self.update_pomodoro)
+        else:
             if self.pomodoro.is_finished():
-                self.pomodoro.switch()
-                self.db.register_audit(self.session, self.user_id, f"Pomodoro {'Trabajo' if self.pomodoro.is_break else 'Descanso'} Finalizado")
-                self.play_sound()
-            self.root.after(1000, self.update_pomodoro)
+                if self.pomodoro.is_break:
+                    messagebox.showinfo("Pomodoro", "¡Es hora de descansar!")
+                else:
+                    messagebox.showinfo("Pomodoro", "¡Es hora de trabajar!")
+                self.start_sound()
+            else:
+                self.pomodoro_label.config(text="Pomodoro detenido")
+
+    def start_sound(self):
+        if self.sound_thread and self.sound_thread.is_alive():
+            return
+        self.sound_thread = threading.Thread(target=self.play_sound)
+        self.sound_thread.start()
+        self.create_stop_sound_button()
 
     def play_sound(self):
-        def play():
-            playsound("sound.mp3")
-        Thread(target=play).start()
+        playsound("sound.mp3")
+
+    def stop_sound(self):
+        if self.sound_thread and self.sound_thread.is_alive():
+            self.sound_thread = None
+        if hasattr(self, 'stop_sound_button'):
+            self.stop_sound_button.destroy()
+
+    def create_stop_sound_button(self):
+        self.stop_sound_button = tk.Button(self.root, text="Detener sonido", command=self.stop_sound)
+        self.stop_sound_button.pack()
 
     def run(self):
         self.root.mainloop()
 
+
 if __name__ == "__main__":
     user_data = {
-        "nombre": simpledialog.askstring("Nombre", "Ingrese su nombre"),
-        "apellido": simpledialog.askstring("Apellido", "Ingrese su apellido paterno"),
-        "celular": simpledialog.askstring("Celular", "Ingrese su celular"),
-        "email": simpledialog.askstring("Email", "Ingrese su email")
+        "nombre": "Usuario",
+        "apellido": "Ejemplo",
+        "celular": "1234567890",
+        "email": "usuario@ejemplo.com"
     }
-    main_view = MainView(user_data)
-    main_view.run()
+    app = MainView(user_data)
+    app.run()
