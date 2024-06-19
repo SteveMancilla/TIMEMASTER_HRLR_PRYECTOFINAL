@@ -1,7 +1,0 @@
-{
-    "python.pythonPath": "${workspaceFolder}/venvleonard/Scripts/python.exe",
-    "python.envFile": "${workspaceFolder}/.env",
-    "terminal.integrated.env.windows": {
-        "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}/modelo:${workspaceFolder}/test"
-    }
-}
