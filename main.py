@@ -2,6 +2,10 @@
 import tkinter as tk
 from tkinter import ttk, Toplevel, Label, Entry, messagebox, Button, Tk
 from src.vista.vista_principal import MainView
+from src.modelo.db import DB, UsuarioModel
+
+# Crear una instancia de la clase DB para manejar la base de datos
+db = DB()
 
 ventana = Tk()
 ventana.config(bg='black')
@@ -10,8 +14,36 @@ ventana.title('Ventana inicial')
 ventana.minsize(width=250, height=250)
 
 def abrir_vistaPrincipal():
-    #ventana.destroy()
+    # Obtener los datos de los Entry
+    nombre = IngresoNombre.get()
+    apellidos = IngresoApellidos.get()
+    telefono = IngresoTelefono.get()
+    email = IngresoEmail.get()
+    
+    # Crear una instancia de UsuarioModel con los datos
+    usuario = UsuarioModel(Usuario_Nombre=nombre,
+                           Usuario_Apellido_Paterno=apellidos,
+                           Usuario_Celular=telefono,
+                           Usuario_Email=email)
+    
+    # Abrir una sesión de base de datos
+    session = db.get_session()
     MainView(ventana)
+
+    try:
+        # Agregar el usuario a la sesión y hacer commit para guardarlo en la base de datos
+        session.add(usuario)
+        session.commit()
+        
+        # Registrar la auditoría
+        db.register_audit(session, usuario.Usuario_ID, f"Registro de usuario: {nombre} {apellidos}")
+        
+        messagebox.showinfo("Éxito", "Usuario registrado correctamente")
+    except Exception as e:
+        session.rollback()
+        messagebox.showerror("Error", f"No se pudo registrar el usuario: {str(e)}")
+    finally:
+        session.close()
 
 nombre = Label(ventana, text='Nombre', bg='black', fg='magenta', font=('Arial',12,'bold'))
 nombre.grid(row=1, column=0, padx=5, pady=5)
