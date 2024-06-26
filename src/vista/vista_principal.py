@@ -5,6 +5,7 @@ from pygame import mixer
 from time import strftime
 from src.modelo.alarma import AlarmaApp
 from src.modelo.cronometro import CronometroApp
+from src.modelo.pomodoro import Pomodoro
 from math import cos, sin, radians, pi
 
 class MainView:
@@ -32,7 +33,7 @@ class MainView:
         self.alarma_button = Button(self.button_frame, text='Alarma', relief="raised", bd=5, bg='blue', font=('Arial',12,'bold'), width=20, command=self.abrir_alarma)
         self.alarma_button.grid(column=1, row=0, padx=10, pady=10, sticky='nsew')
 
-        self.pomodoro_button = Button(self.button_frame, text='Pomodoro', relief="raised", bd=5, bg='yellow', font=('Arial',12,'bold'), width=20)
+        self.pomodoro_button = Button(self.button_frame, text='Pomodoro', relief="raised", bd=5, bg='yellow', font=('Arial',12,'bold'), width=20, command=self.abrir_pomodoro)
         self.pomodoro_button.grid(column=2, row=0, padx=10, pady=10, sticky='nsew')
 
         self.button_frame.grid_columnconfigure(0, weight=1)
@@ -70,6 +71,9 @@ class MainView:
 
     def abrir_cronometro(self):
         CronometroApp(self.ventana)
+
+    def abrir_pomodoro(self):
+        Pomodoro(self.ventana)
 
     def tiempo(self):
         global hr, mi, se	
