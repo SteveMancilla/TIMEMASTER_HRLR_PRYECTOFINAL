@@ -10,7 +10,7 @@ class Pomodoro:
         self.master = master
         self.ventana = Toplevel(self.master)
         self.ventana.config(bg='black')
-        self.ventana.geometry('550x300')
+        self.ventana.geometry('600x300')
         self.ventana.title('Pomodoro')
         self.ventana.minsize(width=500, height=300)
         mixer.init()
