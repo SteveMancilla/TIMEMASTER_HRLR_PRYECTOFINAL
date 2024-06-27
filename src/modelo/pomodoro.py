@@ -90,6 +90,7 @@ class Pomodoro:
     def iniciar_trabajo(self):
         if self.tiempo_trabajo > 0:
             self.btniniciarTrabajoPomodoro.config(state='disabled')
+            self.btniniciarDescansoPomodoro.config(state='disabled')
             self.timer_active = True
             threading.Thread(target=self.countdown, args=(int(self.tiempo_trabajo * 60), "Trabajo")).start()
         else:
@@ -97,6 +98,7 @@ class Pomodoro:
 
     def iniciar_descanso(self):
         if self.tiempo_descanso > 0:
+            self.btniniciarTrabajoPomodoro.config(state='disabled')
             self.btniniciarDescansoPomodoro.config(state='disabled')
             self.timer_active = True
             threading.Thread(target=self.countdown, args=(int(self.tiempo_descanso * 60), "Descanso")).start()
@@ -104,7 +106,7 @@ class Pomodoro:
             messagebox.showerror("Error", "Por favor, configure el tiempo de descanso primero")
 
     def countdown(self, t, mode):
-        while t > 0 and self.timer_active:
+        while t >= 0 and self.timer_active:
             mins, secs = divmod(t, 60)
             timeformat = '{:02d}:{:02d}'.format(mins, secs)
             self.ventana.after(0, self.update_timer_label, timeformat, mode)
@@ -112,15 +114,11 @@ class Pomodoro:
             t -= 1
 
         if self.timer_active:
-            self.play_alarm()
-            if mode == "Trabajo":
-                messagebox.showinfo("Pomodoro", "¡Tiempo de trabajo finalizado!")
-                self.btniniciarDescansoPomodoro.config(state='normal')
-            else:
-                messagebox.showinfo("Pomodoro", "¡Tiempo de descanso finalizado!")
-                self.btniniciarTrabajoPomodoro.config(state='normal')
+            self.ventana.after(0, self.play_alarm)
+            self.ventana.after(0, self.show_finish_message, mode)
         
-        self.ventana.after(0, self.clear_timer_label)
+        self.timer_active = False
+        self.ventana.after(0, self.reset_buttons)
 
     def update_timer_label(self, timeformat, mode):
         self.timer_label.config(text=f"{mode}: {timeformat}")
@@ -129,9 +127,20 @@ class Pomodoro:
         self.timer_label.config(text="")
 
     def play_alarm(self):
-        mixer.music.load("path_to_your_alarm_sound.mp3")  # Reemplaza con la ruta de tu archivo de sonido
+        mixer.music.load("sound.mp3")  # Reemplaza con la ruta de tu archivo de sonido
         mixer.music.play()
 
+    def show_finish_message(self, mode):
+        if mode == "Trabajo":
+            messagebox.showinfo("Pomodoro", "¡Tiempo de trabajo finalizado!")
+        else:
+            messagebox.showinfo("Pomodoro", "¡Tiempo de descanso finalizado!")
+
+    def reset_buttons(self):
+        self.btniniciarTrabajoPomodoro.config(state='normal')
+        self.btniniciarDescansoPomodoro.config(state='normal')
+        self.clear_timer_label()
+    
     def run(self):
         self.ventana.mainloop()
 
