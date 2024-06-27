@@ -1,4 +1,4 @@
-from tkinter import messagebox, Label, Tk, ttk, Toplevel
+from tkinter import messagebox, Label, Tk, ttk, Toplevel, Button
 from time import strftime
 from pygame import mixer
 
@@ -8,7 +8,7 @@ class AlarmaApp:
         self.master = master
         self.ventana = Toplevel(self.master)
         self.ventana.config(bg='black')
-        self.ventana.geometry('500x250')
+        self.ventana.geometry('500x300')
         self.ventana.title('Alarma')
         self.ventana.minsize(width=500, height=250)
         mixer.init()
@@ -39,7 +39,7 @@ class AlarmaApp:
         self.combobox3.current(0)
 
         style = ttk.Style()
-        style.theme_create('combostyle', parent='alt', settings={'TCombobox': {'configure': {'selectbackground': 'red', 'fieldbackground': 'gold', 'background': 'blue'}}})
+        style.theme_create('combostyle', parent='alt', settings={'TCombobox': {'configure': {'selectbackground': 'blue', 'fieldbackground': 'gold', 'background': 'white'}}})
         style.theme_use('combostyle')
 
         self.ventana.option_add('*TCombobox*Listbox*Background', 'white')
@@ -57,6 +57,9 @@ class AlarmaApp:
 
         self.texto_hora = Label(self.ventana, fg='green2', bg='black')
         self.texto_hora.grid(columnspan=3, row=0, sticky="nsew", ipadx=5, ipady=20)
+        
+        EstablecerAlarma = Button(self.ventana,text='Configurar alarma', fg='black', bg='green', font=('Arial', 12, 'bold'))
+        EstablecerAlarma.grid(columnspan=3, row=4, padx=5, pady=5)
 
     def obtener_tiempo(self):
         x_hora = self.combobox1.get()
