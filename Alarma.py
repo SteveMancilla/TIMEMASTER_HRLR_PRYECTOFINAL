@@ -13,23 +13,23 @@ from PyQt5.QtWidgets import QApplication,QMainWindow
 import os, sys
 from PyQt5 import uic
 
-class Ui_Dialog(object):
+class Ui_MainWindow(QMainWindow):
     
     def __init__(self):
         ruta = os.path.dirname ( os.path.abspath ( __file__ ) ) + r"\Alarma.ui"
         QMainWindow.__init__(self)
         uic.loadUi(ruta,self)
     
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(597, 429)
-        self.HoraActual = QtWidgets.QLCDNumber(Dialog)
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("Dialog")
+        MainWindow.resize(597, 429)
+        self.HoraActual = QtWidgets.QLCDNumber(MainWindow)
         self.HoraActual.setGeometry(QtCore.QRect(230, 90, 141, 51))
         self.HoraActual.setObjectName("HoraActual")
-        self.label = QtWidgets.QLabel(Dialog)
+        self.label = QtWidgets.QLabel(MainWindow)
         self.label.setGeometry(QtCore.QRect(230, 160, 151, 16))
         self.label.setObjectName("label")
-        self.cbHorasAlarma = QtWidgets.QComboBox(Dialog)
+        self.cbHorasAlarma = QtWidgets.QComboBox(MainWindow)
         self.cbHorasAlarma.setGeometry(QtCore.QRect(230, 200, 69, 22))
         self.cbHorasAlarma.setObjectName("cbHorasAlarma")
         self.cbHorasAlarma.addItem("")
@@ -56,7 +56,7 @@ class Ui_Dialog(object):
         self.cbHorasAlarma.addItem("")
         self.cbHorasAlarma.addItem("")
         self.cbHorasAlarma.addItem("")
-        self.cbMinutosAlarma_2 = QtWidgets.QComboBox(Dialog)
+        self.cbMinutosAlarma_2 = QtWidgets.QComboBox(MainWindow)
         self.cbMinutosAlarma_2.setGeometry(QtCore.QRect(310, 200, 69, 22))
         self.cbMinutosAlarma_2.setObjectName("cbMinutosAlarma_2")
         self.cbMinutosAlarma_2.addItem("")
@@ -119,22 +119,22 @@ class Ui_Dialog(object):
         self.cbMinutosAlarma_2.addItem("")
         self.cbMinutosAlarma_2.addItem("")
         self.cbMinutosAlarma_2.addItem("")
-        self.label_2 = QtWidgets.QLabel(Dialog)
+        self.label_2 = QtWidgets.QLabel(MainWindow)
         self.label_2.setGeometry(QtCore.QRect(230, 240, 151, 16))
         self.label_2.setObjectName("label_2")
-        self.pushButton = QtWidgets.QPushButton(Dialog)
+        self.pushButton = QtWidgets.QPushButton(MainWindow)
         self.pushButton.setGeometry(QtCore.QRect(250, 310, 111, 23))
         self.pushButton.setObjectName("pushButton")
-        self.lineEdit = QtWidgets.QLineEdit(Dialog)
+        self.lineEdit = QtWidgets.QLineEdit(MainWindow)
         self.lineEdit.setGeometry(QtCore.QRect(230, 270, 151, 20))
         self.lineEdit.setObjectName("lineEdit")
 
-        self.retranslateUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslateUi(self, Dialog):
+    def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        MainWindow.setWindowTitle(_translate("Dialog", "Dialog"))
         self.label.setText(_translate("Dialog", "Establecer una hora de alarma"))
         self.cbHorasAlarma.setItemText(0, _translate("Dialog", "00"))
         self.cbHorasAlarma.setItemText(1, _translate("Dialog", "01"))
