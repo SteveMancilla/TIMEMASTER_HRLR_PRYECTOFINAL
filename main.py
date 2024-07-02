@@ -1,10 +1,10 @@
 #NO BORRAR
 import sys
 from PyQt5.QtWidgets import QApplication
-from ventanaInteractiva import Ui_MainWindow
+from Alarma import Ui_Dialog
 
 if __name__=='__main__':
     app = QApplication(sys.argv)
-    window = Ui_MainWindow()
+    window = Ui_Dialog()
     window.show()
     app.exec()
