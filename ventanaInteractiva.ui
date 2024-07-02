@@ -205,13 +205,13 @@
         <widget class="QFrame" name="frmLateral">
          <property name="minimumSize">
           <size>
-           <width>200</width>
+           <width>0</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>200</width>
+           <width>0</width>
            <height>16777215</height>
           </size>
          </property>
@@ -499,7 +499,7 @@ font: 75 12pt &quot;Arial Narrow&quot;;
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>501</width>
+                <width>701</width>
                 <height>451</height>
                </rect>
               </property>
