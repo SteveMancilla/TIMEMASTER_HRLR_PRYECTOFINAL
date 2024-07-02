@@ -1,3 +1,5 @@
+#NO BORRAR
+
 from tkinter import messagebox, Label, Entry, ttk, Toplevel, Button
 from time import strftime
 from pygame import mixer
