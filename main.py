@@ -1,7 +1,7 @@
 #NO BORRAR
 import sys
 from PyQt5.QtWidgets import QApplication
-from Alarma import Ui_MainWindow
+from login import Ui_MainWindow
 
 if __name__=='__main__':
     app = QApplication(sys.argv)
