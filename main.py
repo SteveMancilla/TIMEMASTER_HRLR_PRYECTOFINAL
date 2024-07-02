@@ -14,6 +14,7 @@ ventana.minsize(width=250, height=250)
 def abrir_vistaPrincipal():
     #ventana.destroy()
     MainView(ventana)
+    ventana.destroy()
 
 texto1 = Label(ventana, text='Nombre', bg='black', fg='magenta', font=('Arial',12,'bold'))
 texto1.grid(row=1, column=0, padx=5, pady=5)
@@ -29,5 +30,8 @@ texto3.grid(row=4, column=0, padx=5, pady=5)
         
 btn_registrar = Button(ventana, text='Registrar',bg='blue',fg='magenta',font=('Arial',12,'bold'), command=abrir_vistaPrincipal)
 btn_registrar.grid(row=5, column=2,padx=10, pady=10)
+
+
+
 
 ventana.mainloop()
