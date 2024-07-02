@@ -1,14 +1,26 @@
+<<<<<<< HEAD
 from tkinter import messagebox, Label, Tk, ttk, Toplevel
 from time import strftime
 from pygame import mixer
 
+=======
+from tkinter import messagebox, Label, Tk, ttk, Toplevel, Button
+from time import strftime
+from pygame import mixer
+
+
+>>>>>>> 183cdc82172500def3bc04a1e938c8df9aacdb3a
 class AlarmaApp:
     def __init__(self, master):
         #self.ventana = Tk()
         self.master = master
         self.ventana = Toplevel(self.master)
         self.ventana.config(bg='black')
+<<<<<<< HEAD
         self.ventana.geometry('500x250')
+=======
+        self.ventana.geometry('350x500')
+>>>>>>> 183cdc82172500def3bc04a1e938c8df9aacdb3a
         self.ventana.title('Alarma')
         self.ventana.minsize(width=500, height=250)
         mixer.init()
@@ -24,22 +36,39 @@ class AlarmaApp:
         texto1 = Label(self.ventana, text='Hora', bg='black', fg='magenta', font=('Arial', 12, 'bold'))
         texto1.grid(row=1, column=0, padx=5, pady=5)
         texto2 = Label(self.ventana, text='Minutos', bg='black', fg='magenta', font=('Arial', 12, 'bold'))
+<<<<<<< HEAD
         texto2.grid(row=1, column=1, padx=5, pady=5)
         texto3 = Label(self.ventana, text='Segundos', bg='black', fg='magenta', font=('Arial', 12, 'bold'))
         texto3.grid(row=1, column=2, padx=5, pady=5)
 
         self.combobox1 = ttk.Combobox(self.ventana, values=self.lista_horas, style="TCombobox", justify='center', width='12', font='Arial')
         self.combobox1.grid(row=2, column=0, padx=15, pady=5)
+=======
+        texto2.grid(row=2, column=0, padx=5, pady=5)
+        texto3 = Label(self.ventana, text='Segundos', bg='black', fg='magenta', font=('Arial', 12, 'bold'))
+        texto3.grid(row=3, column=0, padx=5, pady=5)
+
+        self.combobox1 = ttk.Combobox(self.ventana, values=self.lista_horas, style="TCombobox", justify='center', width='12', font='Arial')
+        self.combobox1.grid(row=1, column=1, padx=15, pady=5)
+>>>>>>> 183cdc82172500def3bc04a1e938c8df9aacdb3a
         self.combobox1.current(0)
         self.combobox2 = ttk.Combobox(self.ventana, values=self.lista_minutos, style="TCombobox", justify='center', width='12', font='Arial')
         self.combobox2.grid(row=2, column=1, padx=15, pady=5)
         self.combobox2.current(0)
         self.combobox3 = ttk.Combobox(self.ventana, values=self.lista_segundos, style="TCombobox", justify='center', width='12', font='Arial')
+<<<<<<< HEAD
         self.combobox3.grid(row=2, column=2, padx=15, pady=5)
         self.combobox3.current(0)
 
         style = ttk.Style()
         style.theme_create('combostyle', parent='alt', settings={'TCombobox': {'configure': {'selectbackground': 'red', 'fieldbackground': 'gold', 'background': 'blue'}}})
+=======
+        self.combobox3.grid(row=3, column=1, padx=15, pady=5)
+        self.combobox3.current(0)
+
+        style = ttk.Style()
+        style.theme_create('combostyle', parent='alt', settings={'TCombobox': {'configure': {'selectbackground': 'blue', 'fieldbackground': 'gold', 'background': 'white'}}})
+>>>>>>> 183cdc82172500def3bc04a1e938c8df9aacdb3a
         style.theme_use('combostyle')
 
         self.ventana.option_add('*TCombobox*Listbox*Background', 'white')
@@ -48,15 +77,30 @@ class AlarmaApp:
         self.ventana.option_add('*TCombobox*Listbox*selectForeground', 'black')
 
         self.alarma_label = Label(self.ventana, fg='violet', bg='black', font=('Radioland', 20))
+<<<<<<< HEAD
         self.alarma_label.grid(column=0, row=3, sticky="nsew", ipadx=5, ipady=20)
         repetir = Label(self.ventana, fg='white', bg='black', text='Repetir', font='Arial')
         repetir.grid(column=1, row=3, ipadx=5, ipady=20)
         self.cantidad = ttk.Combobox(self.ventana, values=(1, 2, 3, 4, 5), justify='center', width='8', font='Arial')
         self.cantidad.grid(row=3, column=2, padx=5, pady=5)
+=======
+        self.alarma_label.grid(column=0, row=6, sticky="nsew", ipadx=5, ipady=20)
+        repetir = Label(self.ventana, fg='white', bg='black', text='Repetir', font='Arial')
+        repetir.grid(column=1, row=6, ipadx=5, ipady=20)
+        self.cantidad = ttk.Combobox(self.ventana, values=(1, 2, 3, 4, 5), justify='center', width='8', font='Arial')
+        self.cantidad.grid(row=6, column=2, padx=5, pady=5)
+>>>>>>> 183cdc82172500def3bc04a1e938c8df9aacdb3a
         self.cantidad.current(0)
 
         self.texto_hora = Label(self.ventana, fg='green2', bg='black')
         self.texto_hora.grid(columnspan=3, row=0, sticky="nsew", ipadx=5, ipady=20)
+<<<<<<< HEAD
+=======
+        
+        #agregado, falta inlcuir funcionalidad
+        EstablecerAlarma = Button(self.ventana,text='Configurar alarma', fg='black', bg='green', font=('Arial', 12, 'bold'))
+        EstablecerAlarma.grid(columnspan=3, row=4, padx=5, pady=5)
+>>>>>>> 183cdc82172500def3bc04a1e938c8df9aacdb3a
 
     def obtener_tiempo(self):
         x_hora = self.combobox1.get()

@@ -5,6 +5,10 @@ from pygame import mixer
 from time import strftime
 from src.modelo.alarma import AlarmaApp
 from src.modelo.cronometro import CronometroApp
+<<<<<<< HEAD
+=======
+from src.modelo.pomodoro import Pomodoro
+>>>>>>> 183cdc82172500def3bc04a1e938c8df9aacdb3a
 from math import cos, sin, radians, pi
 
 class MainView:
@@ -32,7 +36,11 @@ class MainView:
         self.alarma_button = Button(self.button_frame, text='Alarma', relief="raised", bd=5, bg='blue', font=('Arial',12,'bold'), width=20, command=self.abrir_alarma)
         self.alarma_button.grid(column=1, row=0, padx=10, pady=10, sticky='nsew')
 
+<<<<<<< HEAD
         self.pomodoro_button = Button(self.button_frame, text='Pomodoro', relief="raised", bd=5, bg='yellow', font=('Arial',12,'bold'), width=20)
+=======
+        self.pomodoro_button = Button(self.button_frame, text='Pomodoro', relief="raised", bd=5, bg='yellow', font=('Arial',12,'bold'), width=20, command=self.abrir_pomodoro)
+>>>>>>> 183cdc82172500def3bc04a1e938c8df9aacdb3a
         self.pomodoro_button.grid(column=2, row=0, padx=10, pady=10, sticky='nsew')
 
         self.button_frame.grid_columnconfigure(0, weight=1)
@@ -71,6 +79,12 @@ class MainView:
     def abrir_cronometro(self):
         CronometroApp(self.ventana)
 
+<<<<<<< HEAD
+=======
+    def abrir_pomodoro(self):
+        Pomodoro(self.ventana)
+
+>>>>>>> 183cdc82172500def3bc04a1e938c8df9aacdb3a
     def tiempo(self):
         global hr, mi, se	
         h = int(strftime('%H'))
@@ -97,4 +111,8 @@ class MainView:
         self.canvas.create_oval(190, 190, 210, 210, fill='green', outline='black', width=2)
 
     def run(self):
+<<<<<<< HEAD
         self.ventana.mainloop()
+=======
+        self.ventana.mainloop()
+>>>>>>> 183cdc82172500def3bc04a1e938c8df9aacdb3a
