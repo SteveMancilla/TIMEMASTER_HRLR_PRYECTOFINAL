@@ -1,4 +1,4 @@
-#NO BORRAR
+#NO BORRAR -nnn
 import sys
 from PyQt5.QtWidgets import QApplication
 from login import Ui_MainWindow
