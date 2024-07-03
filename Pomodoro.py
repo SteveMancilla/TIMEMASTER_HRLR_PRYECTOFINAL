@@ -148,7 +148,7 @@ class Pomodoro(QMainWindow):
             self.lcdConteoRegresivoPom.display(time_str)
         else:
             self.timer.stop()
-            mixer.music.load("sound.mp3")
+            mixer.music.load("Sonido 04.mp3")
             mixer.music.play()
     
     def mover_menu(self):
