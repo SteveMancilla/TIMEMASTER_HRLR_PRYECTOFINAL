@@ -35,6 +35,9 @@ class Pomodoro(QMainWindow):
         self.btnCerrarPom.clicked.connect(self.close)
         self.btnMinimizarPom.clicked.connect(self.showMinimized)
         self.btnExpandirPom.clicked.connect(self.toggleMaximizeRestore)
+        self.btnInicioPom.clicked.connect(self.AbrirVentana)
+        self.btnCronometroPom.clicked.connect(self.AbrirCronometro)
+        self.btnAlarmaPom.clicked.connect(self.AbrirAlarma)
         
         #Implementando menu desplegable
         self.btnMenuPom.clicked.connect(self.mover_menu)
@@ -83,6 +86,24 @@ class Pomodoro(QMainWindow):
                 self.db.register_audit(self.session, self.usuario.Usuario_ID, "Configuracion Pomodoro")
         except Exception as e:
                 messagebox.showerror("Error", f"No se ´pudo guadar la configuracion:{str(e)}")
+    
+    def AbrirAlarma(self):
+        from Alarma import Alarma
+        self.pom = Alarma()
+        self.close()
+        self.pom.show()
+    
+    def AbrirVentana(self):
+        from ventanaInteractiva import ventanaInteractiva
+        self.pom = ventanaInteractiva()
+        self.close()
+        self.pom.show()
+    
+    def AbrirCronometro(self):
+        from Cronometro import Cronometro
+        self.pom = Cronometro()
+        self.close()
+        self.pom.show()
     
     def detener(self):
         self.timer.stop()

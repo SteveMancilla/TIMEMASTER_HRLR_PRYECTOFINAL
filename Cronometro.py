@@ -15,7 +15,6 @@ import os, sys
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPropertyAnimation, QTimer, QTime
 from pygame import mixer
-from Pomodoro import Pomodoro
 from src.modelo.db import DB, TimerModel, UsuarioModel
 
 class Cronometro(QMainWindow):
@@ -38,6 +37,8 @@ class Cronometro(QMainWindow):
         #implementacion desplegable
         self.btnMenuCrono.clicked.connect(self.mover_menu)
         self.btnPomodoroCrono.clicked.connect(self.OpenPomodoro)
+        self.btnAlarmaCrono.clicked.connect(self.AbrirAlarma)
+        self.btnInicioCrono.clicked.connect(self.AbrirVentana)
         
         
         #Mostrando hora actual
@@ -116,7 +117,21 @@ class Cronometro(QMainWindow):
                 messagebox.showerror("Error", f"No se pudo guardar la configuracion: {str(e)}")
     
     def OpenPomodoro(self):
+        from Pomodoro import Pomodoro
         self.pom = Pomodoro()
+        self.close()
+        self.pom.show()
+    
+    def AbrirAlarma(self):
+        from Alarma import Alarma
+        self.pom = Alarma()
+        self.close()
+        self.pom.show()
+    
+    def AbrirVentana(self):
+        from ventanaInteractiva import ventanaInteractiva
+        self.pom = ventanaInteractiva()
+        self.close()
         self.pom.show()
     
     def detener(self):
