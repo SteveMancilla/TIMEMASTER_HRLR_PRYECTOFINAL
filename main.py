@@ -1,4 +1,6 @@
-#NO BORRAR -nnn
+
+#INTEGRANTES
+
 import sys
 from PyQt5.QtWidgets import QApplication
 from login import Ui_MainWindow
