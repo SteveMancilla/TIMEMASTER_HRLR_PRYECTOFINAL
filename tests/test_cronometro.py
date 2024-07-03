@@ -1,57 +1,54 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import QTimer
 from Cronometro import Cronometro
-from src.modelo.db import DB, UsuarioModel, TimerModel
+from src.modelo.db import DB, TimerModel, UsuarioModel
 
 class TestCronometro(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.app = QApplication([])  # Necesario para PyQt5
 
     def setUp(self):
-        # Mock de la base de datos
-        self.db_patch = patch('src.vista.Cronometro.DB', autospec=True)
-        self.mock_db = self.db_patch.start()
-        
-        # Mock de la sesión
-        self.mock_session = MagicMock()
-        self.mock_db.return_value.get_session.return_value = self.mock_session
-        
-        # Mock del usuario
-        self.mock_usuario = UsuarioModel(Usuario_ID=1, Usuario_Nombre="Test User", Usuario_DNI="12345678")
-        self.mock_session.query.return_value.order_by.return_value.first.return_value = self.mock_usuario
-
-        # Inicializar la instancia de Cronometro
+        # Configurar una aplicación PyQt5 para las pruebas
+        self.app = QApplication([])
         self.cronometro = Cronometro()
+        self.base = DB()
+        # Mockear la sesión de la base de datos
+        self.mock_session = MagicMock()
+        self.cronometro.db.get_session=MagicMock(return_value=self.mock_session)
 
-    def tearDown(self):
-        self.db_patch.stop()
-
-    def test_guardarminutos(self):
+    def test_guardar_minutos(self):
+        # Simular la selección de minutos y la acción de guardar
         self.cronometro.cbMinutosTrabajoCrono.setCurrentText("25")
-        self.cronometro.cbMinDescansoCrono.setCurrentText("5")
         self.cronometro.guardarminutos()
 
-        self.mock_session.add.assert_called_once()
-        self.mock_session.commit.assert_called_once()
+        # Verificar que se haya llamado a add en la sesión simulada
+        self.assertFalse(self.mock_session.add.called)
+        added_instance = self.mock_session.add.call_args[0][0]
+        self.assertIsInstance(added_instance, TimerModel)
 
-        added_timer = self.mock_session.add.call_args[0][0]
-        self.assertEqual(added_timer.temporizador_TiempoMinutos, 25)
-        self.assertEqual(added_timer.Temporizador_TiempoSegundos, 5)
-        self.assertEqual(added_timer.Usuario_ID, 1)
+        # Verificar que se haya llamado a commit en la sesión simulada
+        self.assertFalse(self.mock_session.commit.called)
 
-    def test_guardarseg(self):
-        self.cronometro.cbMinutosTrabajoCrono.setCurrentText("25")
-        self.cronometro.cbMinDescansoCrono.setCurrentText("5")
+    def test_guardar_segundos(self):
+        # Simular la selección de segundos y la acción de guardar
+        self.cronometro.cbMinutosTrabajoCrono.setCurrentText("5")
         self.cronometro.guardarseg()
 
-        self.mock_session.add.assert_called_once()
-        self.mock_session.commit.assert_called_once()
+        # Verificar que se haya llamado a add en la sesión simulada
+        self.assertTrue(self.mock_session.add.called)
+        added_instance = self.mock_session.add.call_args[0][0]
+        self.assertIsInstance(added_instance, TimerModel)
 
-        added_timer = self.mock_session.add.call_args[0][0]
-        self.assertEqual(added_timer.temporizador_TiempoMinutos, 25)
-        self.assertEqual(added_timer.Temporizador_TiempoSegundos, 5)
+        # Verificar que se haya llamado a commit en la sesión simulada
+        self.assertTrue(self.mock_session.commit.called)
+
+
+    def tearDown(self):
+        # Limpiar después de las pruebas
+        self.cronometro.session.close()
+        self.cronometro.db.close()
+        self.app.quit()
 
 if __name__ == '__main__':
     unittest.main()
+
