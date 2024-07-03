@@ -37,8 +37,10 @@ class TimerModel(Base):
 class AlarmModel(Base):
     __tablename__ = 'tblAlarma'
     Alarma_ID = Column(Integer, primary_key=True, autoincrement=True)
-    Alarma_Hora_Programada = Column(DateTime, nullable=False)
-    Alarma_Estado = Column(String, nullable=False)
+    Alarma_Hora_Programada = Column(Float, nullable=False)
+    Alarma_Minuto_Programada = Column(Float, nullable=False)
+    Alarma_Sonido = Column(String, nullable=False)
+    Alarma_Nombre = Column(String, nullable=False)
     Usuario_ID = Column(Integer, ForeignKey('tblUsuario.Usuario_ID'))
     Auditoria_ID = Column(Integer, ForeignKey('tblAuditoria.Auditoria_ID'))
 

@@ -18,6 +18,8 @@ from PyQt5.QtCore import QTimer, QTime
 import time 
 import pygame
 from Cronometro import Cronometro
+from src.modelo.db import DB, AlarmModel
+from tkinter import messagebox
 
 class Alarma(QMainWindow):
     
@@ -59,6 +61,33 @@ class Alarma(QMainWindow):
         
         # Inicializar el reproductor de medios
         pygame.mixer.init()
+        
+        #base de datos
+        self.db = DB()
+        self.session = self.db.get_session()
+        self.btnCrear.clicked.connect(self.RegistraAlarma)
+    
+    def RegistraAlarma(self):
+        try:
+                self.hora = self.cbHorasAlarma.currentText()
+                self.minuto = self.cbMinutosAlarma.currentText()
+                self.sonido = self.cbSonido.currentText()
+                self.nombre = self.txtNombre.text() 
+                
+                alarma = AlarmModel(
+                        Alarma_Hora_Programada = self.hora, 
+                        Alarma_Minuto_Programada = self.minuto,
+                        Alarma_Sonido = self.sonido,
+                        Alarma_Nombre = self.nombre
+                )
+                
+                self.session.add(alarma)
+                self.session.commit()
+                
+                '''messagebox.showinfo("Configuración", "Configuración guardada exitosamente")'''
+        
+        except ValueError:
+                messagebox.showerror("Configuración", "Por favor ingrese valores validos")
 
     
     def OpenVentanaInteractiva(self):
@@ -114,13 +143,6 @@ class Alarma(QMainWindow):
                 sonido_actual != self.cbSonido.currentText() or
                 nombre_actual != self.txtNombre.text())
         
-    def limpiarCampos(self):
-        # Limpiar los campos de entrada
-        self.cbHorasAlarma.setCurrentIndex(0)  # Establecer el índice a 0 (primer elemento)
-        self.cbMinutosAlarma.setCurrentIndex(0)
-        self.cbSonido.setCurrentIndex(0)
-        self.txtNombre.clear()  # Limpiar el texto del QLineEdit
-        
     def agregarAlarma(self):
         # Obtener los valores de los campos
         hora = self.cbHorasAlarma.currentText()
@@ -148,9 +170,6 @@ class Alarma(QMainWindow):
         self.tblAlarma.setItem(rowPosition, 1, item_minuto)
         self.tblAlarma.setItem(rowPosition, 2, item_sonido)
         self.tblAlarma.setItem(rowPosition, 3, item_nombre)
-        
-        # Limpiar campos después de agregar
-        self.limpiarCampos()
         
         # Habilitar todos los botones después de agregar
         self.habilitarBotones()
@@ -222,9 +241,6 @@ class Alarma(QMainWindow):
             self.tblAlarma.setItem(selected_row, 1, QtWidgets.QTableWidgetItem(minuto))
             self.tblAlarma.setItem(selected_row, 2, QtWidgets.QTableWidgetItem(sonido))
             self.tblAlarma.setItem(selected_row, 3, QtWidgets.QTableWidgetItem(nombre))
-            
-            # Limpiar campos después de actualizar
-            self.limpiarCampos()
             
             # Habilitar todos los botones después de actualizar
             self.habilitarBotones()
