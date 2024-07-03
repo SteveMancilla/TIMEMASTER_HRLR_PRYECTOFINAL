@@ -9,9 +9,10 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication,QMainWindow
-import os, sys
+from PyQt5.QtWidgets import QMainWindow
+import os
 from PyQt5 import uic
+from PyQt5.QtCore import Qt, QPropertyAnimation
 
 class Ui_MainWindow(QMainWindow):
     
@@ -19,59 +20,83 @@ class Ui_MainWindow(QMainWindow):
         ruta = os.path.dirname ( os.path.abspath ( __file__ ) ) + r"\login.ui"
         QMainWindow.__init__(self)
         uic.loadUi(ruta,self)
+        
+        #Ocultar la barra por defecto
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setWindowOpacity(1)
+        
+        #Funcionalidad de los botones de la barra superior
+        self.btnCerrarLogin.clicked.connect(self.close)
     
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(349, 500)
+        MainWindow.resize(578, 349)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(0, 0, 351, 461))
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setSpacing(0)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.frame = QtWidgets.QFrame(self.centralwidget)
+        self.frame.setStyleSheet("image: url(:/new/login.png);\n"
+"image: url(:/new/fondoInicio.jpeg);")
+        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.label = QtWidgets.QLabel(self.frame)
+        self.label.setGeometry(QtCore.QRect(0, 0, 671, 391))
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap("images/fondoLogin.jpg"))
+        self.label.setPixmap(QtGui.QPixmap("images/fondoInicio.jpeg"))
         self.label.setObjectName("label")
-        self.lblNombre = QtWidgets.QLabel(self.centralwidget)
-        self.lblNombre.setGeometry(QtCore.QRect(50, 240, 81, 21))
+        self.label_2 = QtWidgets.QLabel(self.frame)
+        self.label_2.setGeometry(QtCore.QRect(260, 120, 111, 21))
         font = QtGui.QFont()
-        font.setFamily("MS Sans Serif")
-        font.setPointSize(12)
+        font.setFamily("Rockwell Extra Bold")
+        font.setPointSize(14)
         font.setBold(True)
         font.setWeight(75)
-        self.lblNombre.setFont(font)
-        self.lblNombre.setObjectName("lblNombre")
-        self.lblContrasea = QtWidgets.QLabel(self.centralwidget)
-        self.lblContrasea.setGeometry(QtCore.QRect(50, 290, 101, 21))
+        self.label_2.setFont(font)
+        self.label_2.setStyleSheet("border-color: rgb(255, 170, 0);\n"
+"background-color: rgb(255, 170, 0);")
+        self.label_2.setObjectName("label_2")
+        self.label_3 = QtWidgets.QLabel(self.frame)
+        self.label_3.setGeometry(QtCore.QRect(260, 170, 47, 21))
         font = QtGui.QFont()
-        font.setFamily("MS Sans Serif")
-        font.setPointSize(12)
+        font.setFamily("Rockwell Extra Bold")
+        font.setPointSize(14)
         font.setBold(True)
         font.setWeight(75)
-        self.lblContrasea.setFont(font)
-        self.lblContrasea.setObjectName("lblContrasea")
-        self.txtInputNombre = QtWidgets.QLineEdit(self.centralwidget)
-        self.txtInputNombre.setGeometry(QtCore.QRect(160, 240, 131, 21))
+        self.label_3.setFont(font)
+        self.label_3.setStyleSheet("background-color: rgb(255, 170, 0);")
+        self.label_3.setObjectName("label_3")
+        self.btnCerrarLogin = QtWidgets.QPushButton(self.frame)
+        self.btnCerrarLogin.setGeometry(QtCore.QRect(510, 10, 61, 41))
+        self.btnCerrarLogin.setStyleSheet("color: rgb(255, 0, 0);\n"
+"background-color: rgb(255, 0, 0);")
+        self.btnCerrarLogin.setText("")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("images/cerrar.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.btnCerrarLogin.setIcon(icon)
+        self.btnCerrarLogin.setIconSize(QtCore.QSize(30, 30))
+        self.btnCerrarLogin.setObjectName("btnCerrarLogin")
+        self.btnIngresarLogin = QtWidgets.QPushButton(self.frame)
+        self.btnIngresarLogin.setGeometry(QtCore.QRect(340, 250, 101, 31))
+        font = QtGui.QFont()
+        font.setFamily("System")
+        font.setPointSize(16)
+        font.setBold(True)
+        font.setWeight(75)
+        self.btnIngresarLogin.setFont(font)
+        self.btnIngresarLogin.setStyleSheet("background-color: rgb(0, 186, 90);")
+        self.btnIngresarLogin.setObjectName("btnIngresarLogin")
+        self.txtInputNombre = QtWidgets.QLineEdit(self.frame)
+        self.txtInputNombre.setGeometry(QtCore.QRect(390, 119, 141, 21))
         self.txtInputNombre.setObjectName("txtInputNombre")
-        self.txtInputDNI = QtWidgets.QLineEdit(self.centralwidget)
-        self.txtInputDNI.setGeometry(QtCore.QRect(160, 290, 131, 20))
+        self.txtInputDNI = QtWidgets.QLineEdit(self.frame)
+        self.txtInputDNI.setGeometry(QtCore.QRect(390, 170, 141, 20))
         self.txtInputDNI.setObjectName("txtInputDNI")
-        self.btnIngresar = QtWidgets.QPushButton(self.centralwidget)
-        self.btnIngresar.setGeometry(QtCore.QRect(120, 370, 75, 23))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        font.setWeight(75)
-        self.btnIngresar.setFont(font)
-        self.btnIngresar.setMouseTracking(False)
-        self.btnIngresar.setAcceptDrops(False)
-        self.btnIngresar.setObjectName("btnIngresar")
+        self.verticalLayout.addWidget(self.frame)
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 349, 21))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -79,6 +104,7 @@ class Ui_MainWindow(QMainWindow):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.lblNombre.setText(_translate("MainWindow", "Nombre:"))
-        self.lblContrasea.setText(_translate("MainWindow", "DNI:"))
-        self.btnIngresar.setText(_translate("MainWindow", "Ingresar"))
+        self.label_2.setText(_translate("MainWindow", "Nombre:"))
+        self.label_3.setText(_translate("MainWindow", "DNI:"))
+        self.btnIngresarLogin.setText(_translate("MainWindow", "Ingresar"))
+#import login1_rc
