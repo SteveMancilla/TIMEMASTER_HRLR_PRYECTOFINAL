@@ -16,9 +16,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication,QMainWindow
 import os
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QPropertyAnimation, QByteArray
+from PyQt5.QtCore import Qt, QPropertyAnimation
+from Pomodoro import Pomodoro
 
-class Ui_MainWindow(QMainWindow):
+
+class ventanaInteractiva(QMainWindow):
     
     def __init__(self):
         ruta = os.path.dirname ( os.path.abspath ( __file__ ) ) + r"\ventanaInteractiva.ui"
@@ -39,7 +41,16 @@ class Ui_MainWindow(QMainWindow):
         
         #Implementando menu desplegable
         self.btnMenu.clicked.connect(self.mover_menu)
+        
+        #Funciones de los botnos pomodoro, alarma, cronometro
+        #POMODORO
+        self.btnPomodoro.clicked.connect(self.Open_Pomodoro)
+        self.btnPomodoro.clicked.connect(self.close)
 
+    def Open_Pomodoro(self):
+        self.pom = Pomodoro()
+        self.pom.show()
+    
     def toggleMaximizeRestore(self):
         if self.isMaximized():
             self.showNormal()

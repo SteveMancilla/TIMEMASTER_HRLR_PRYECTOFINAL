@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QMainWindow
 import os
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPropertyAnimation
+from ventanaInteractiva import ventanaInteractiva
 
 class Ui_MainWindow(QMainWindow):
     
@@ -27,6 +28,12 @@ class Ui_MainWindow(QMainWindow):
         
         #Funcionalidad de los botones de la barra superior
         self.btnCerrarLogin.clicked.connect(self.close)
+        self.btnIngresarLogin.clicked.connect(self.open_ventanaInteractiva)
+        self.btnIngresarLogin.clicked.connect(self.close)
+    
+    def open_ventanaInteractiva(self):
+        self.interaccion = ventanaInteractiva()
+        self.interaccion.show()
     
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
