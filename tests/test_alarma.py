@@ -1,7 +1,8 @@
 import unittest
+from unittest.mock import patch
 from PyQt5.QtWidgets import QApplication, QTableWidgetItem
 from PyQt5.QtCore import QTime
-from Alarma import Alarma
+from Alarma import Alarma  # Asegúrate de que el archivo se llame Alarma.py
 
 class TestAlarma(unittest.TestCase):
     @classmethod
@@ -12,14 +13,14 @@ class TestAlarma(unittest.TestCase):
         # Inicializar la instancia de Alarma
         self.alarma = Alarma()
 
-    def test_agregarAlarma(self):
-        # Configuración del estado de los campos
-        self.alarma.cbHorasAlarma.setCurrentText("15")
-        self.alarma.cbMinutosAlarma.setCurrentText("45")
-        self.alarma.cbSonido.setCurrentText("Sonido 02")
-        self.alarma.txtNombre.setText("Otra Alarma")
+        # Configuración inicial para los campos de la alarma
+        self.alarma.cbHorasAlarma.setCurrentText("20")
+        self.alarma.cbMinutosAlarma.setCurrentText("40")
+        self.alarma.cbSonido.setCurrentText("Sonido 01")
+        self.alarma.txtNombre.setText("Alarma de Test")
 
-        # Llamar al método
+    def test_agregar_alarma(self):
+        """Verifica que se agrega una nueva alarma a la tabla con los valores correctos."""
         self.alarma.agregarAlarma()
 
         # Verificar que la fila fue agregada al QTableWidget
@@ -28,50 +29,77 @@ class TestAlarma(unittest.TestCase):
         item_minuto = self.alarma.tblAlarma.item(0, 1)
         item_sonido = self.alarma.tblAlarma.item(0, 2)
         item_nombre = self.alarma.tblAlarma.item(0, 3)
-        self.assertEqual(item_hora.text(), "15")
-        self.assertEqual(item_minuto.text(), "45")
-        self.assertEqual(item_sonido.text(), "Sonido 02")
-        self.assertEqual(item_nombre.text(), "Otra Alarma")
+        self.assertEqual(item_hora.text(), "20")
+        self.assertEqual(item_minuto.text(), "40")
+        self.assertEqual(item_sonido.text(), "Sonido 01")
+        self.assertEqual(item_nombre.text(), "Alarma de Test")
 
-    def test_cargarDatosSeleccionados(self):
+    def test_cargar_datos_seleccionados(self):
+        """Verifica que los datos de una fila seleccionada se cargan en los campos de edición."""
         # Simular una fila seleccionada en el QTableWidget
         self.alarma.tblAlarma.insertRow(0)
-        self.alarma.tblAlarma.setItem(0, 0, QTableWidgetItem("14"))
-        self.alarma.tblAlarma.setItem(0, 1, QTableWidgetItem("35"))
-        self.alarma.tblAlarma.setItem(0, 2, QTableWidgetItem("Sonido 03"))
-        self.alarma.tblAlarma.setItem(0, 3, QTableWidgetItem("Alarma Test"))
+        self.alarma.tblAlarma.setItem(0, 0, QTableWidgetItem("18"))
+        self.alarma.tblAlarma.setItem(0, 1, QTableWidgetItem("25"))
+        self.alarma.tblAlarma.setItem(0, 2, QTableWidgetItem("Sonido 02"))
+        self.alarma.tblAlarma.setItem(0, 3, QTableWidgetItem("Otra Alarma"))
 
         self.alarma.tblAlarma.setCurrentCell(0, 0)
         self.alarma.cargarDatosSeleccionados()
 
         # Verificar que los datos fueron cargados en los campos
-        self.assertEqual(self.alarma.cbHorasAlarma.currentText(), "14")
-        self.assertEqual(self.alarma.cbMinutosAlarma.currentText(), "35")
-        self.assertEqual(self.alarma.cbSonido.currentText(), "Sonido 03")
-        self.assertEqual(self.alarma.txtNombre.text(), "Alarma Test")
+        self.assertEqual(self.alarma.cbHorasAlarma.currentText(), "18")
+        self.assertEqual(self.alarma.cbMinutosAlarma.currentText(), "25")
+        self.assertEqual(self.alarma.cbSonido.currentText(), "Sonido 02")
+        self.assertEqual(self.alarma.txtNombre.text(), "Otra Alarma")
 
-    def test_calcularTiempoRestante(self):
+    def test_calcular_tiempo_restante(self):
+        """Verifica que se calcula el tiempo restante hasta la alarma correctamente."""
         # Configurar la hora actual y la hora de la alarma
-        self.alarma.cbHorasAlarma.setCurrentText("15")
-        self.alarma.cbMinutosAlarma.setCurrentText("30")
+        self.alarma.cbHorasAlarma.setCurrentText("20")
+        self.alarma.cbMinutosAlarma.setCurrentText("40")
 
-        tiempo_restante = self.alarma.calcularTiempoRestante(15, 30)
-        hora_actual = QTime.currentTime()
-        alarma = QTime(15, 30)
+        with patch('Alarma.QTime.currentTime') as mock_time:
+            mock_time.return_value = QTime(18, 30)  # Hora actual simulada
 
-        if alarma < hora_actual:
-            diferencia_horas = (24 - hora_actual.hour()) + 15
-            diferencia_minutos = 30 - hora_actual.minute()
-        else:
-            diferencia_horas = 15 - hora_actual.hour()
-            diferencia_minutos = 30 - hora_actual.minute()
+            tiempo_restante = self.alarma.calcularTiempoRestante(20, 40)
 
-        if diferencia_minutos < 0:
-            diferencia_minutos += 60
-            diferencia_horas -= 1
+            alarma = QTime(20, 40)
+            hora_actual = mock_time.return_value
 
-        self.assertEqual(tiempo_restante['horas'], diferencia_horas)
-        self.assertEqual(tiempo_restante['minutos'], diferencia_minutos)
+            diferencia_horas = alarma.hour() - hora_actual.hour()
+            diferencia_minutos = alarma.minute() - hora_actual.minute()
+
+            if diferencia_minutos < 0:
+                diferencia_minutos += 60
+                diferencia_horas -= 1
+
+            self.assertEqual(tiempo_restante['horas'], diferencia_horas)
+            self.assertEqual(tiempo_restante['minutos'], diferencia_minutos)
+
+    def test_calcular_tiempo_restante_con_hora_menor(self):
+        """Verifica que se calcula el tiempo restante correctamente cuando la hora de la alarma es menor que la hora actual."""
+        # Configurar la hora actual y la hora de la alarma
+        self.alarma.cbHorasAlarma.setCurrentText("00")
+        self.alarma.cbMinutosAlarma.setCurrentText("10")
+
+        with patch('Alarma.QTime.currentTime') as mock_time:
+            mock_time.return_value = QTime(23, 50)  # Hora actual simulada
+
+            tiempo_restante = self.alarma.calcularTiempoRestante(0, 10)
+
+            alarma = QTime(0, 10)
+            hora_actual = mock_time.return_value
+
+            diferencia_horas = (24 - hora_actual.hour()) + alarma.hour()
+            diferencia_minutos = alarma.minute() - hora_actual.minute()
+
+            if diferencia_minutos < 0:
+                diferencia_minutos += 60
+                diferencia_horas -= 1
+
+            self.assertEqual(tiempo_restante['horas'], diferencia_horas)
+            self.assertEqual(tiempo_restante['minutos'], diferencia_minutos)
 
 if __name__ == '__main__':
     unittest.main()
+
