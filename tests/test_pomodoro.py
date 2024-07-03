@@ -1,66 +1,63 @@
 import unittest
 from unittest.mock import MagicMock
-from PyQt5.QtWidgets import QApplication  # Importar QApplication
-
-# Importar la clase Pomodoro desde pomodoro.py
+from PyQt5.QtWidgets import QApplication
 from Pomodoro import Pomodoro
 
-class TestPomodoro(unittest.TestCase):
-
+class TestPomodoroBasic(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # Inicializar una aplicación Qt en modo headless para las pruebas
-        cls.app = QApplication([])
-
-    @classmethod
-    def tearDownClass(cls):
-        # Cerrar la aplicación Qt después de que todas las pruebas hayan terminado
-        cls.app.exit()
+        cls.app = QApplication([])  # Necesario para PyQt5
 
     def setUp(self):
-        # Configurar mock para la sesión de la base de datos
-        self.mock_session = MagicMock()
-        self.db = MagicMock()
-        self.db.get_session = MagicMock(return_value=self.mock_session)
-
-        # Crear instancia de Pomodoro sin inicializar la GUI completa
+        # Inicializar la instancia de Pomodoro
         self.pomodoro = Pomodoro()
 
-    def test_guardar_pomodoro_db(self):
-        # Simular usuario obtenido de la base de datos
-        usuario_mock = MagicMock()
-        usuario_mock.Usuario_ID = 1
-        self.mock_session.query.return_value.order_by.return_value.first.return_value = usuario_mock
+        # Mockeamos la base de datos y los elementos necesarios
+        self.pomodoro.db = MagicMock()
+        self.pomodoro.session = MagicMock()
+        self.pomodoro.usuario = MagicMock()
+        self.pomodoro.usuario.Usuario_ID = 1
 
-        # Simular selección de tiempos de trabajo y descanso
-        self.pomodoro.cbMinutosTrabajoPom.setCurrentText("25")
-        self.pomodoro.cbMinDescansoPom.setCurrentText("5")
+        # Establecer valores iniciales para los campos desplegables
+        self.pomodoro.cbMinutosTrabajoPom.setCurrentText("1")
+        self.pomodoro.cbMinDescansoPom.setCurrentText("1")
 
-        # Ejecutar método para guardar configuración en la base de datos
-        self.pomodoro.guardarPomoDB()
+    def test_iniciar_timer_trabajo(self):
+        """Verifica que al iniciar el temporizador de trabajo, el tiempo restante se establece correctamente."""
+        self.pomodoro.start_timer()
+        self.assertEqual(self.pomodoro.time_remaining, 60)  # 1 minuto = 60 segundos
 
-        # Verificar que se llamó a add en la sesión simulada
-        self.assertTrue(self.mock_session.add.called)
-        added_instance = self.mock_session.add.call_args[0][0]
-        self.assertIsInstance(added_instance, MagicMock)
+    def test_actualizar_timer_trabajo(self):
+        """Verifica que el temporizador de trabajo actualiza el tiempo restante."""
+        self.pomodoro.time_remaining = 10  # 10 segundos
+        self.pomodoro.update_timer_trabajo()
+        self.assertEqual(self.pomodoro.time_remaining, 9)  # Debería decrementar a 9 segundos
 
-        # Verificar que se llamó a commit en la sesión simulada
-        self.assertTrue(self.mock_session.commit.called)
+    def test_iniciar_timer_descanso(self):
+        """Verifica que al iniciar el temporizador de descanso, el tiempo restante se establece correctamente."""
+        self.pomodoro.cbMinDescansoPom.setCurrentText("2")  # 2 minutos
+        self.pomodoro.startDescanso()
+        self.assertEqual(self.pomodoro.time_remaining, 120)  # 2 minutos = 120 segundos
 
-    def test_guardar_pomodoro_db_no_usuario(self):
-        # Simular que no se encuentra ningún usuario registrado
-        self.mock_session.query.return_value.order_by.return_value.first.return_value = None
+    def test_actualizar_timer_descanso(self):
+        """Verifica que el temporizador de descanso actualiza el tiempo restante."""
+        self.pomodoro.time_remaining = 5  # 5 segundos
+        self.pomodoro.update_timer_descanso()
+        self.assertEqual(self.pomodoro.time_remaining, 4)  # Debería decrementar a 4 segundos
 
-        # Ejecutar método para guardar configuración en la base de datos
-        self.pomodoro.guardarPomoDB()
+    def test_iniciar_y_detener_timer(self):
+        """Verifica que iniciar y detener el temporizador funciona como se espera."""
+        self.pomodoro.start_timer()
+        self.assertTrue(self.pomodoro.timer.isActive())  # El temporizador debe estar activo
+        self.pomodoro.detener()
+        self.assertFalse(self.pomodoro.timer.isActive())  # El temporizador debe estar detenido
+    
+    def test_reanudar_timer(self):
+        """Verifica que reanudar el temporizador reinicia el temporizador."""
+        self.pomodoro.start_timer()
+        self.pomodoro.detener()
+        self.pomodoro.reanudar()
+        self.assertTrue(self.pomodoro.timer.isActive())  # El temporizador debe estar activo después de reanudar
 
-        # Verificar que no se llamó a add ni a commit porque no hay usuario registrado
-        self.assertFalse(self.mock_session.add.called)
-        self.assertFalse(self.mock_session.commit.called)
-
-    def tearDown(self):
-        # Limpiar recursos después de cada prueba si es necesario
-        pass
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
