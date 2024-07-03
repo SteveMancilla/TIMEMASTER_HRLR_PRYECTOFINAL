@@ -16,7 +16,7 @@
 
 - _Huaccho Mancilla Steven José_
 - _Lazo Maravi Nilton Joel_
-- _Ramirez Bashualdo Lenin Sebasthian_
+- _Ramirez Basualdo Lenin Sebasthian_
 - _Rojas Mellado Andrea Mirella_
 
 
