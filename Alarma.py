@@ -17,6 +17,7 @@ from PyQt5 import uic
 from PyQt5.QtCore import QTimer, QTime
 import time 
 import pygame
+from Cronometro import Cronometro
 
 class Alarma(QMainWindow):
     
@@ -42,6 +43,7 @@ class Alarma(QMainWindow):
         self.deshabilitarBotones()
         self.btnCrear.setEnabled(True)
         self.btnRegresar.setEnabled(True)
+        self.btnRegresar.clicked.connect(self.OpenVentanaInteractiva)
         
         # Configurar señales y slots para actualizar estado de los botones
         self.tblAlarma.itemSelectionChanged.connect(self.actualizarEstadoBotones)
@@ -58,6 +60,11 @@ class Alarma(QMainWindow):
         # Inicializar el reproductor de medios
         pygame.mixer.init()
 
+    
+    def OpenVentanaInteractiva(self):
+        self.interactiva = Cronometro()
+        self.interactiva.show()
+    
     def deshabilitarBotones(self):
         # Función para deshabilitar todos los botones excepto "Crear" y "Regresar"
         self.btnSeleccionar.setEnabled(False)
