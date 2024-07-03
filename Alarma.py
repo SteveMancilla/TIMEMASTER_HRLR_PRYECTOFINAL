@@ -14,7 +14,7 @@ from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl
 import os, sys
 from PyQt5 import uic
-from PyQt5.QtCore import QTimer, QTime
+from PyQt5.QtCore import Qt, QTimer, QTime
 import time 
 import pygame
 from Cronometro import Cronometro
@@ -28,6 +28,10 @@ class Alarma(QMainWindow):
         QMainWindow.__init__(self)
         uic.loadUi(ruta,self)
         
+        #Ocultar la barra por defecto
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setWindowOpacity(1)
+        
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_time)
         self.timer.start(1000)
@@ -39,13 +43,12 @@ class Alarma(QMainWindow):
         self.btnSeleccionar.clicked.connect(self.cargarDatosSeleccionados)
         self.btnActualizar.clicked.connect(self.actualizarAlarma)
         self.btnEliminar.clicked.connect(self.confirmarEliminarAlarma)
-        self.btnRegresar.clicked.connect(self.cerrarVentana)
+        self.btnRegresar.clicked.connect(self.OpenVentanaInteractiva)
         
         # Deshabilitar todos los botones excepto "Crear" y "Regresar" al inicio
         self.deshabilitarBotones()
         self.btnCrear.setEnabled(True)
-        self.btnRegresar.setEnabled(True)
-        self.btnRegresar.clicked.connect(self.OpenVentanaInteractiva)
+        self.btnRegresar.setEnabled(True)         
         
         # Configurar señales y slots para actualizar estado de los botones
         self.tblAlarma.itemSelectionChanged.connect(self.actualizarEstadoBotones)
@@ -83,15 +86,15 @@ class Alarma(QMainWindow):
                 
                 self.session.add(alarma)
                 self.session.commit()
-                
-                '''messagebox.showinfo("Configuración", "Configuración guardada exitosamente")'''
         
         except ValueError:
                 messagebox.showerror("Configuración", "Por favor ingrese valores validos")
 
     
     def OpenVentanaInteractiva(self):
-        self.interactiva = Cronometro()
+        from ventanaInteractiva import ventanaInteractiva
+        self.close()
+        self.interactiva = ventanaInteractiva()
         self.interactiva.show()
     
     def deshabilitarBotones(self):
@@ -260,10 +263,6 @@ class Alarma(QMainWindow):
                 
                 # Después de eliminar, verificar y actualizar estado de botones
                 self.actualizarEstadoBotones()
-    
-    def cerrarVentana(self):
-        # Cerrar la ventana actual
-        self.close()
     
     def update_time(self):
         # Obtener la hora actual
