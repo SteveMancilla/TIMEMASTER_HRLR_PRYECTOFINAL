@@ -19,6 +19,7 @@ class UsuarioModel(Base):
     __tablename__ = 'tblUsuario'
     Usuario_ID = Column(Integer, primary_key=True, autoincrement=True)
     Usuario_Nombre = Column(String, nullable=False)
+    Usuario_DNI = Column(String, nullable=False)
     #Usuario_Apellido_Paterno = Column(String, nullable=False)
     #Usuario_Celular = Column(String, nullable=False)
     #Usuario_Email = Column(String, nullable=False)
@@ -27,7 +28,8 @@ class UsuarioModel(Base):
 class TimerModel(Base):
     __tablename__ = 'tblTemporizador'
     temporizador_ID = Column(Integer, primary_key=True, autoincrement=True)
-    temporizador_Tiempo = Column(Float, nullable=False)
+    temporizador_TiempoMinutos = Column(Float, nullable=True)
+    Temporizador_TiempoSegundos = Column(Float, nullable=True)
     #temporizador_estado = Column(String, nullable=False)
     Usuario_ID = Column(Integer, ForeignKey('tblUsuario.Usuario_ID'))
     Auditoria_ID = Column(Integer, ForeignKey('tblAuditoria.Auditoria_ID'))
