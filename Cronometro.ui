@@ -197,7 +197,7 @@ background-image: url(:/new/other.jpg);</string>
         <widget class="QFrame" name="frmLateralPomodoro">
          <property name="maximumSize">
           <size>
-           <width>200</width>
+           <width>0</width>
            <height>16777215</height>
           </size>
          </property>

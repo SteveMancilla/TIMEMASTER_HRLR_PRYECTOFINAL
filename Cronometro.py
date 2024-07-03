@@ -14,6 +14,7 @@ import os, sys
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPropertyAnimation, QTimer, QTime
 from pygame import mixer
+from Pomodoro import Pomodoro
 
 class Cronometro(QMainWindow):
     
@@ -34,6 +35,8 @@ class Cronometro(QMainWindow):
         
         #implementacion desplegable
         self.btnMenuCrono.clicked.connect(self.mover_menu)
+        self.btnPomodoroCrono.clicked.connect(self.OpenPomodoro)
+        
         
         #Mostrando hora actual
         self.timer = QTimer(self)
@@ -57,6 +60,10 @@ class Cronometro(QMainWindow):
         self.btnReanudarCrono.clicked.connect(self.reanudar)
         
         mixer.init()
+    
+    def OpenPomodoro(self):
+        self.pom = Pomodoro()
+        self.pom.show()
     
     def detener(self):
         #self.tim.stop()
