@@ -19,6 +19,7 @@ from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPropertyAnimation
 from Pomodoro import Pomodoro
 from Cronometro import Cronometro
+from Alarma import Alarma
 
 class ventanaInteractiva(QMainWindow):
     
@@ -50,6 +51,10 @@ class ventanaInteractiva(QMainWindow):
         #cronometro
         self.btnCronometro.clicked.connect(self.Open_Cronometro)
         self.btnCronometro.clicked.connect(self.close)
+        
+        #Alarma
+        self.btnAlarma.clicked.connect(self.Open_Alarma)
+        self.btnAlarma.clicked.connect(self.close)
 
     def Open_Pomodoro(self):
         self.pom = Pomodoro()
@@ -57,6 +62,10 @@ class ventanaInteractiva(QMainWindow):
     
     def Open_Cronometro(self):
         self.crono = Cronometro()
+        self.crono.show()
+        
+    def Open_Alarma(self):
+        self.crono = Alarma()
         self.crono.show()
     
     def toggleMaximizeRestore(self):

@@ -59,6 +59,10 @@ class Cronometro(QMainWindow):
         self.btnPausarCrono.clicked.connect(self.detener)
         self.btnReanudarCrono.clicked.connect(self.reanudar)
         
+        # Flags de pausa
+        self.is_paused_min = False
+        self.is_paused_seg = False
+        
         mixer.init()
     
     def OpenPomodoro(self):
@@ -66,17 +70,27 @@ class Cronometro(QMainWindow):
         self.pom.show()
     
     def detener(self):
-        #self.tim.stop()
-        self.timSeg.stop()
+        if self.tim.isActive():
+            self.tim.stop()
+            self.is_paused_min = True
+        if self.timSeg.isActive():
+            self.timSeg.stop()
+            self.is_paused_seg = True
 
     def reanudar(self):
-        #self.tim.start(1000)
-        self.timSeg.start(1000)
+        if self.time_remaining > 0:
+            if self.is_paused_min:
+                self.tim.start(1000)
+                self.is_paused_min = False
+            if self.is_paused_seg:
+                self.timSeg.start(1000)
+                self.is_paused_seg = False
     
     def start_cronometroMin(self):
         minutes = int(self.cbMinutosTrabajoCrono.currentText())
         self.time_remaining = minutes * 60
         self.tim.start(1000)
+        self.is_paused_min = False
     
     def update_CronometroMin(self):
         if self.time_remaining > 0:
@@ -86,14 +100,15 @@ class Cronometro(QMainWindow):
             time_str = f"{minutes:02d}:{seconds:02d}"
             self.lcdConteoRegresivoCrono.display(time_str)
         else:
-            self.timer.stop()
+            self.tim.stop()
             mixer.music.load("sound.mp3")
             mixer.music.play(loops=1)
     
     def start_cronometroSeg(self):
-        minutes = int(self.cbMinDescansoCrono.currentText())
-        self.time_remaining = minutes
+        seconds = int(self.cbMinDescansoCrono.currentText())
+        self.time_remaining = seconds
         self.timSeg.start(1000)
+        self.is_paused_seg = False
     
     def update_CronometroSeg(self):
         if self.time_remaining > 0:
@@ -103,7 +118,7 @@ class Cronometro(QMainWindow):
             time_str = f"{minutes:02d}:{seconds:02d}"
             self.lcdConteoRegresivoCrono.display(time_str)
         else:
-            self.timer.stop()
+            self.timSeg.stop()
             mixer.music.load("sound.mp3")
             mixer.music.play(loops=1)
     
