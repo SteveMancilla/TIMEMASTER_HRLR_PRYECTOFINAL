@@ -83,6 +83,35 @@ class Cronometro(QMainWindow):
         try:
                 self.tiempoMin = self.cbMinutosTrabajoCrono.currentText()
                 self.tiempoSeg = self.cbMinDescansoCrono.currentText()
+                self.user = self.usuario.Usuario_ID
+                
+                cronometro = TimerModel(
+                        temporizador_TiempoMinutos = self.tiempoMin,
+                        Temporizador_TiempoSegundos = self.tiempoSeg,
+                        Usuario_ID = self.user
+                )
+                self.session.add(cronometro)
+                self.session.commit()
+                
+                self.db.register_audit(self.session, self.usuario.Usuario_ID, "Configuracion de Cronometro")
+                
+        except Exception as e:
+                messagebox.showerror("Error", f"No se pudo guardar la configuracion: {str(e)}")
+    
+    def guardarseg(self):
+        try:
+                self.tiempoMin = self.cbMinutosTrabajoCrono.currentText()
+                self.tiempoSeg = self.cbMinDescansoCrono.currentText()
+                
+                cronometro = TimerModel(
+                        temporizador_TiempoMinutos = self.tiempoMin,
+                        Temporizador_TiempoSegundos = self.tiempoSeg
+                )
+                self.session.add(cronometro)
+                self.session.commit()
+                
+                self.db.register_audit(self.session, self.usuario.Usuario_ID, "Configuracion de pomodoro")
+                
         except Exception as e:
                 messagebox.showerror("Error", f"No se pudo guardar la configuracion: {str(e)}")
     
