@@ -12,8 +12,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow
 import os
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QPropertyAnimation
-
+from PyQt5.QtCore import Qt, QPropertyAnimation, QTimer
+from pygame import mixer
 
 class Pomodoro(QMainWindow):
     
@@ -36,12 +36,66 @@ class Pomodoro(QMainWindow):
         
         #Implementando menu desplegable
         self.btnMenuPom.clicked.connect(self.mover_menu)
+        
+        #iniciando pomodoro trabajo
+        self.btnIniciarPom.clicked.connect(self.start_timer)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_timer_trabajo)
+        self.time_remaining = 0
+        
+        self.btnPausarPom.clicked.connect(self.detener)
+        self.btnReanudarPom.clicked.connect(self.reanudar)
+        
+        #iniciando pomodoro descanso
+        self.btnRestaurarPom.clicked.connect(self.startDescanso)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_timer_descanso)
+        mixer.init()
+    
+    def detener(self):
+        self.timer.stop()
+    
+    def reanudar(self):
+        self.timer.start(1000)
+    
+    def start_timer(self):
+        minutes = int(self.cbMinutosTrabajoPom.currentText())
+        self.time_remaining = minutes * 60
+        self.timer.start(1000)
+        
+    def update_timer_trabajo(self):
+        if self.time_remaining > 0:
+            self.time_remaining -= 1
+            minutes = self.time_remaining // 60
+            seconds = self.time_remaining % 60
+            time_str = f"{minutes:02d}:{seconds:02d}"
+            self.lcdConteoRegresivoPom.display(time_str)
+        else:
+            self.timer.stop()
+            self.play_sound()
     
     def toggleMaximizeRestore(self):
         if self.isMaximized():
             self.showNormal()
         else:
             self.showMaximized()
+    
+    def startDescanso(self):
+        minutes = int(self.cbMinDescansoPom.currentText())
+        self.time_remaining = minutes * 60
+        self.timer.start(1000)
+    
+    def update_timer_descanso(self):
+        if self.time_remaining > 0:
+            self.time_remaining -= 1
+            minutes = self.time_remaining // 60
+            seconds = self.time_remaining % 60
+            time_str = f"{minutes:02d}:{seconds:02d}"
+            self.lcdConteoRegresivoPom.display(time_str)
+        else:
+            self.timer.stop()
+            mixer.music.load("sound.mp3")
+            mixer.music.play()
     
     def mover_menu(self):
         
