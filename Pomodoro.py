@@ -72,7 +72,8 @@ class Pomodoro(QMainWindow):
             self.lcdConteoRegresivoPom.display(time_str)
         else:
             self.timer.stop()
-            self.play_sound()
+            mixer.music.load("sound.mp3")
+            mixer.music.play()
     
     def toggleMaximizeRestore(self):
         if self.isMaximized():
