@@ -1,5 +1,9 @@
 # Gestor de Tiempo Multipropósito "TIMEMASTER"
 
+## Descripción del proyecto
+> El proyecto actual consiste en la creacion de un TimeMaster que cuenta con las funcionalidades de Cronometro, Alarma y Pomodoro. En cada una presenta diversas funcionalidades. Además, para la creación de este proyecto se uso lo que es el lenguaje de progrmación _Python_, _Visual Studio Code_
+
+
 ## Objetivos del Proyecto
 """
 > 1. Desarrollar una aplicación de gestión de tiempo multipropósito que satisfaga las necesidades de los usuarios, proporcionando funcionalidades como temporizador estándar, alarma y temporizador Pomodoro.
@@ -14,3 +18,10 @@
 - _Lazo Maravi Nilton Joel_
 - _Ramirez Bashualdo Lenin Sebasthian_
 - _Rojas Mellado Andrea Mirella_
+
+
+### Requerimientos para la instalación
+> Ejecutar el siguiente comando:
+
+> pip install -r requirements.txt
+
