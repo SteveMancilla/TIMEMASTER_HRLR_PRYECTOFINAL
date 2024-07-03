@@ -45,8 +45,8 @@ class AlarmModel(Base):
 class PomodoroModel(Base):
     __tablename__ = 'tblTemporizadorPomodoro'
     TemPom_ID = Column(Integer, primary_key=True, autoincrement=True)
-    temPom_Duracion_trabajo = Column(Float, nullable=False)
-    temPom_Duracion_descanso = Column(Float, nullable=False)
+    temPom_Duracion_trabajo = Column(Integer, nullable=False)
+    temPom_Duracion_descanso = Column(Integer, nullable=False)
     Usuario_ID = Column(Integer, ForeignKey('tblUsuario.Usuario_ID'))
     Auditoria_ID = Column(Integer, ForeignKey('tblAuditoria.Auditoria_ID'))
 
