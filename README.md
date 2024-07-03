@@ -1,3 +1,5 @@
+## PROYECTO FINAL DE LA ASIGNATURA ARQUITECTURA DEL COMPUTADOR
+
 # Gestor de Tiempo Multipropósito "TIMEMASTER"
 
 ## Descripción del proyecto
